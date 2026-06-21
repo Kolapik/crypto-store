@@ -1068,3 +1068,62 @@ body::before {
   margin: 0 auto 1.5rem;
   font-size: 1.5rem;
 }
+
+/* ─── New Arrivals Scroll Row ───────────────────────────────────────────── */
+.arrivals-section {
+  padding: 4rem 0 5rem;
+}
+
+.arrivals-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  padding: 0 clamp(1.5rem, 4vw, 4rem);
+  max-width: var(--content-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.arrivals-title {
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.arrivals-scroll {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  cursor: grab;
+  padding: 0.5rem clamp(1.5rem, 4vw, 4rem) 1.5rem;
+  /* hide scrollbar cross-browser */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.arrivals-scroll::-webkit-scrollbar {
+  display: none;
+}
+.arrivals-scroll:active {
+  cursor: grabbing;
+}
+
+.arrivals-item {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+}
+
+@media (max-width: 640px) {
+  .arrivals-item {
+    flex: 0 0 82vw;
+  }
+}
