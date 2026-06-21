@@ -1,17 +1,15 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import {
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  timestamp,
+  varchar,
+  decimal,
+} from "drizzle-orm/mysql-core";
 
-/**
- * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
- */
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
   id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
@@ -25,4 +23,44 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+// ─── Watches ───────────────────────────────────────────────────────────────
+
+export const watches = mysqlTable("watches", {
+  id: int("id").autoincrement().primaryKey(),
+  brand: varchar("brand", { length: 128 }).notNull(),
+  model: varchar("model", { length: 256 }).notNull(),
+  reference: varchar("reference", { length: 128 }),
+  year: int("year"),
+  condition: mysqlEnum("condition", ["unworn", "excellent", "very_good", "good", "fair"]).default("excellent"),
+  price: decimal("price", { precision: 12, scale: 2 }),
+  currency: varchar("currency", { length: 8 }).default("CHF"),
+  status: mysqlEnum("status", ["available", "reserved", "sold", "hidden"]).default("available").notNull(),
+  description: text("description"),
+  imageUrl: text("imageUrl"),
+  privateSource: text("privateSource"),
+  slug: varchar("slug", { length: 256 }).notNull().unique(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Watch = typeof watches.$inferSelect;
+export type InsertWatch = typeof watches.$inferInsert;
+
+// ─── Purchase Requests ─────────────────────────────────────────────────────
+
+export const purchaseRequests = mysqlTable("purchase_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  watchId: int("watchId").notNull(),
+  customerName: varchar("customerName", { length: 256 }).notNull(),
+  customerEmail: varchar("customerEmail", { length: 320 }).notNull(),
+  customerPhone: varchar("customerPhone", { length: 64 }),
+  cryptoPreference: mysqlEnum("cryptoPreference", ["btc", "eth", "usdt", "none", "other"]).default("none"),
+  message: text("message"),
+  status: mysqlEnum("status", ["new", "reviewing", "confirmed", "declined", "completed"]).default("new").notNull(),
+  adminNotes: text("adminNotes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PurchaseRequest = typeof purchaseRequests.$inferSelect;
+export type InsertPurchaseRequest = typeof purchaseRequests.$inferInsert;
