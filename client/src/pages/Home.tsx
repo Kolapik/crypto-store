@@ -1,19 +1,25 @@
 import { Link } from "wouter";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import WatchCard from "@/components/WatchCard";
 import BrandTicker from "@/components/BrandTicker";
+
+const CARD_WIDTH = 280;
+const CARD_GAP = 20; // 1.25rem gap
+const STEP = CARD_WIDTH + CARD_GAP;
 
 function useDragScroll() {
   const ref = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
+  const hasDragged = useRef(false);
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     const el = ref.current;
     if (!el) return;
     isDragging.current = true;
+    hasDragged.current = false;
     startX.current = e.pageX - el.offsetLeft;
     scrollLeft.current = el.scrollLeft;
     el.style.cursor = "grabbing";
@@ -26,6 +32,7 @@ function useDragScroll() {
     e.preventDefault();
     const x = e.pageX - el.offsetLeft;
     const walk = (x - startX.current) * 1.2;
+    if (Math.abs(walk) > 4) hasDragged.current = true;
     el.scrollLeft = scrollLeft.current - walk;
   }, []);
 
@@ -45,13 +52,36 @@ function useDragScroll() {
     el.style.userSelect = "";
   }, []);
 
-  return { ref, onMouseDown, onMouseMove, onMouseUp, onMouseLeave };
+  return { ref, hasDragged, onMouseDown, onMouseMove, onMouseUp, onMouseLeave };
 }
 
 export default function Home() {
   const { data: watches } = trpc.watches.list.useQuery({});
   const featured = (watches ?? []).slice(0, 6);
   const drag = useDragScroll();
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(true);
+
+  const updateArrows = useCallback(() => {
+    const el = drag.ref.current;
+    if (!el) return;
+    setCanPrev(el.scrollLeft > 4);
+    setCanNext(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  }, [drag.ref]);
+
+  useEffect(() => {
+    const el = drag.ref.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateArrows, { passive: true });
+    updateArrows();
+    return () => el.removeEventListener("scroll", updateArrows);
+  }, [drag.ref, updateArrows, featured.length]);
+
+  const scrollBy = useCallback((dir: 1 | -1) => {
+    const el = drag.ref.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * STEP, behavior: "smooth" });
+  }, [drag.ref]);
 
   return (
     <main>
@@ -96,9 +126,27 @@ export default function Home() {
       <section className="arrivals-section">
         <div className="arrivals-header">
           <h2 className="arrivals-title">New Arrivals</h2>
-          <Link href="/catalogue" className="button secondary">
-            View all
-          </Link>
+          <div className="arrivals-controls">
+            <button
+              className={`arrivals-arrow${canPrev ? "" : " disabled"}`}
+              onClick={() => scrollBy(-1)}
+              aria-label="Previous watch"
+              disabled={!canPrev}
+            >
+              ←
+            </button>
+            <button
+              className={`arrivals-arrow${canNext ? "" : " disabled"}`}
+              onClick={() => scrollBy(1)}
+              aria-label="Next watch"
+              disabled={!canNext}
+            >
+              →
+            </button>
+            <Link href="/catalogue" className="button secondary">
+              View all
+            </Link>
+          </div>
         </div>
 
         {featured.length > 0 ? (
@@ -117,7 +165,7 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <div className="notice" style={{ padding: "0 var(--page-px)" }}>
+          <div className="notice" style={{ padding: "0 clamp(1.5rem, 4vw, 4rem)" }}>
             No watches available at this time.
           </div>
         )}
