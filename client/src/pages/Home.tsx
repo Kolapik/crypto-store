@@ -43,6 +43,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Brand ticker ── */}
+      <BrandTicker />
+
       {/* ── Featured watches ── */}
       <section className="section page" style={{ paddingTop: "4rem" }}>
         <div className="section-header">
@@ -65,8 +68,6 @@ export default function Home() {
         )}
       </section>
 
-      {/* ── Brand ticker ── */}
-      <BrandTicker />
     </main>
   );
 }
