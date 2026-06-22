@@ -6,6 +6,7 @@
 dist/
 build/
 *.dist
+.netlify/
 
 # Environment variables
 .env
