@@ -10,11 +10,8 @@ interface WatchCardProps {
   year?: number | null;
   condition?: string | null;
   category?: string | null;
-  hype?: boolean | null;
-  newArrival?: boolean | null;
   price?: string | null;
   currency?: string | null;
-  status: string;
   imageUrl?: string | null;
   slug: string;
 }
@@ -33,7 +30,7 @@ function hashFromSlug(slug: string): string {
   return Math.abs(h).toString(16).padStart(8, "0").toUpperCase();
 }
 
-export default function WatchCard({ brand, model, title, reference, year, condition, category, hype, newArrival, price, currency, status, imageUrl, slug }: WatchCardProps) {
+export default function WatchCard({ brand, model, title, reference, year, condition, category, price, currency, imageUrl, slug }: WatchCardProps) {
   const [imageFailed, setImageFailed] = useState(false);
   const hash = hashFromSlug(slug);
   const condLabel = condition ? CONDITION_LABELS[condition] ?? condition : null;
@@ -66,14 +63,6 @@ export default function WatchCard({ brand, model, title, reference, year, condit
         <p className="watch-card-price">
           {price ? `${currency ?? "CHF"} ${Number(price).toLocaleString("de-CH")}` : "Price on request"}
         </p>
-        {status !== "available" && (
-          <span className={`watch-card-status ${status}`}>{status}</span>
-        )}
-        {(hype || newArrival) && (
-          <p className="watch-card-meta">
-            {[hype ? "Hype" : null, newArrival ? "New arrival" : null].filter(Boolean).join(" · ")}
-          </p>
-        )}
       </div>
     </Link>
   );
