@@ -2457,10 +2457,10 @@ body::before {
   inset: 0;
   z-index: 500;
   display: flex;
-  align-items: flex-end;
-  /* Bucherer: semi-transparent overlay behind the modal */
+  align-items: stretch;
+  justify-content: flex-end;
+  /* dim the left half */
   background: rgba(0, 0, 0, 0.55);
-  /* Slide-in animation */
   animation: buc-fw-backdrop-in 0.3s ease;
 }
 
@@ -2469,14 +2469,18 @@ body::before {
   to   { opacity: 1; }
 }
 
-/* Modal panel — Bucherer: height:85dvh, slides up from bottom */
+/* Modal panel — right-side drawer, exactly 50vw, full height */
 .buc-fw__modal {
-  width: 100%;
-  height: 85dvh;
+  /* 50% of viewport width on all screen sizes */
+  width: 50vw;
+  /* clamp so it never gets too narrow on small screens */
+  min-width: min(50vw, 100vw);
+  height: 100%;
   background: var(--buc-surface);
   display: flex;
   flex-direction: column;
   outline: none;
+  border-left: 1px solid var(--buc-border-hi);
   /* CRT scanline on modal */
   background-image:
     repeating-linear-gradient(
@@ -2486,27 +2490,32 @@ body::before {
       rgba(0, 20, 40, 0.08) 2px,
       rgba(0, 20, 40, 0.08) 4px
     );
-  /* Bucherer slide-up animation */
-  animation: buc-fw-slide-up 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  /* Slide in from right */
+  animation: buc-fw-slide-right 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@keyframes buc-fw-slide-up {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
+@keyframes buc-fw-slide-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
 }
 
-@media (min-width: 1024px) {
+/* On mobile: full width drawer from bottom */
+@media (max-width: 767px) {
   .buc-fw {
-    align-items: stretch;
+    align-items: flex-end;
+    justify-content: flex-start;
   }
   .buc-fw__modal {
-    height: 100%;
-    /* On desktop: slide in from left, Bucherer drawer style */
-    animation: buc-fw-slide-left 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    width: 100%;
+    min-width: unset;
+    height: 85dvh;
+    border-left: none;
+    border-top: 1px solid var(--buc-border-hi);
+    animation: buc-fw-slide-up 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  @keyframes buc-fw-slide-left {
-    from { transform: translateX(-100%); }
-    to   { transform: translateX(0); }
+  @keyframes buc-fw-slide-up {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
   }
 }
 
