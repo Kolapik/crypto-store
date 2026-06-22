@@ -39,7 +39,6 @@ export default function Catalogue() {
   const [hypeOnly, setHypeOnly] = useState(false);
   const [newOnly, setNewOnly] = useState(false);
   const [sort, setSort] = useState("featured");
-  const [showFilters, setShowFilters] = useState(false);
 
   const { data: watches, isLoading } = trpc.watches.list.useQuery({
     brand: brand || undefined,
@@ -109,34 +108,20 @@ export default function Catalogue() {
   };
 
   return (
-    <main className="catalogue-shell">
-      <div className="catalogue-frame">
-        <div className="catalogue-controls">
-          <label className="catalogue-sort">
-            <span className="sr-only">Sort catalogue</span>
-            <select value={sort} onChange={(event) => setSort(event.target.value)}>
-              <option value="featured">sort by relevance</option>
-              <option value="newest">sort by newest</option>
-              <option value="price_asc">price low to high</option>
-              <option value="price_desc">price high to low</option>
-              <option value="brand_az">brand A-Z</option>
-            </select>
-          </label>
-
-          <button
-            className="catalogue-filter-button"
-            type="button"
-            onClick={() => setShowFilters((current) => !current)}
-            aria-expanded={showFilters}
-          >
-            All filters
-          </button>
+    <main style={{ paddingTop: "var(--nav-h)" }}>
+      <div className="section page">
+        <div className="section-header" style={{ marginBottom: "1.5rem" }}>
+          <div>
+            <p className="section-eyebrow">Full inventory</p>
+            <h1 className="section-title">Catalogue</h1>
+          </div>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.82rem" }}>
+            {watches?.length ?? 0} piece{watches?.length !== 1 ? "s" : ""} listed
+          </p>
         </div>
 
-        <div className="catalogue-rule" />
-
-        {showFilters && (
-          <div className="catalogue-filter-panel">
+        <div className="filter-toolbar">
+          <div className="filter-toolbar-controls">
             <input
               className="filter-input"
               value={search}
@@ -157,56 +142,65 @@ export default function Catalogue() {
               <option value="reserved">Available on request</option>
               <option value="sold">Sold</option>
             </select>
-            <select className="filter-select" value={condition} onChange={(event) => setCondition(event.target.value)}>
-              <option value="">Any condition</option>
-              <option value="unworn">Unworn</option>
-              <option value="excellent">Excellent</option>
-              <option value="very_good">Very Good</option>
-              <option value="good">Good</option>
-              <option value="fair">Fair</option>
+            <select className="filter-select" value={sort} onChange={(event) => setSort(event.target.value)}>
+              <option value="featured">Featured first</option>
+              <option value="newest">Newest</option>
+              <option value="price_asc">Price low to high</option>
+              <option value="price_desc">Price high to low</option>
+              <option value="brand_az">Brand A-Z</option>
             </select>
-            <select className="filter-select" value={currency} onChange={(event) => setCurrency(event.target.value)}>
-              <option value="">Any currency</option>
-              <option value="CHF">CHF</option>
-              <option value="EUR">EUR</option>
-              <option value="USD">USD</option>
-              <option value="GBP">GBP</option>
-            </select>
-            <input className="filter-input small" value={priceMin} onChange={(event) => setPriceMin(event.target.value)} placeholder="Min price" inputMode="numeric" />
-            <input className="filter-input small" value={priceMax} onChange={(event) => setPriceMax(event.target.value)} placeholder="Max price" inputMode="numeric" />
-            <input className="filter-input small" value={yearMin} onChange={(event) => setYearMin(event.target.value)} placeholder="Min year" inputMode="numeric" />
-            <input className="filter-input small" value={yearMax} onChange={(event) => setYearMax(event.target.value)} placeholder="Max year" inputMode="numeric" />
-            <input className="filter-input" value={material} onChange={(event) => setMaterial(event.target.value)} placeholder="Material" />
-            <input className="filter-input" value={movement} onChange={(event) => setMovement(event.target.value)} placeholder="Movement" />
-            <input className="filter-input" value={dialColor} onChange={(event) => setDialColor(event.target.value)} placeholder="Dial color" />
-            <input className="filter-input" value={braceletMaterial} onChange={(event) => setBraceletMaterial(event.target.value)} placeholder="Bracelet" />
-            <input className="filter-input" value={boxPapers} onChange={(event) => setBoxPapers(event.target.value)} placeholder="Box / papers" />
-            <label className="filter-toggle">
-              <input type="checkbox" checked={featuredOnly} onChange={(event) => setFeaturedOnly(event.target.checked)} />
-              <span>Featured</span>
-            </label>
-            <label className="filter-toggle">
-              <input type="checkbox" checked={hypeOnly} onChange={(event) => setHypeOnly(event.target.checked)} />
-              <span>Hype</span>
-            </label>
-            <label className="filter-toggle">
-              <input type="checkbox" checked={newOnly} onChange={(event) => setNewOnly(event.target.checked)} />
-              <span>New</span>
-            </label>
-            {hasFilters && <button className="catalogue-clear-button" onClick={clearFilters}>Clear filters</button>}
+            {hasFilters && <button className="button ghost sm" onClick={clearFilters}>Clear</button>}
           </div>
-        )}
+          <span className="filter-count">{watches?.length ?? 0} piece{watches?.length !== 1 ? "s" : ""}</span>
+        </div>
 
-        <p className="catalogue-count">{watches?.length ?? 0} piece{watches?.length !== 1 ? "s" : ""} listed</p>
+        <div className="filter-advanced">
+          <select className="filter-select" value={condition} onChange={(event) => setCondition(event.target.value)}>
+            <option value="">Any condition</option>
+            <option value="unworn">Unworn</option>
+            <option value="excellent">Excellent</option>
+            <option value="very_good">Very Good</option>
+            <option value="good">Good</option>
+            <option value="fair">Fair</option>
+          </select>
+          <select className="filter-select" value={currency} onChange={(event) => setCurrency(event.target.value)}>
+            <option value="">Any currency</option>
+            <option value="CHF">CHF</option>
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+            <option value="GBP">GBP</option>
+          </select>
+          <input className="filter-input small" value={priceMin} onChange={(event) => setPriceMin(event.target.value)} placeholder="Min price" inputMode="numeric" />
+          <input className="filter-input small" value={priceMax} onChange={(event) => setPriceMax(event.target.value)} placeholder="Max price" inputMode="numeric" />
+          <input className="filter-input small" value={yearMin} onChange={(event) => setYearMin(event.target.value)} placeholder="Min year" inputMode="numeric" />
+          <input className="filter-input small" value={yearMax} onChange={(event) => setYearMax(event.target.value)} placeholder="Max year" inputMode="numeric" />
+          <input className="filter-input" value={material} onChange={(event) => setMaterial(event.target.value)} placeholder="Material" />
+          <input className="filter-input" value={movement} onChange={(event) => setMovement(event.target.value)} placeholder="Movement" />
+          <input className="filter-input" value={dialColor} onChange={(event) => setDialColor(event.target.value)} placeholder="Dial color" />
+          <input className="filter-input" value={braceletMaterial} onChange={(event) => setBraceletMaterial(event.target.value)} placeholder="Bracelet" />
+          <input className="filter-input" value={boxPapers} onChange={(event) => setBoxPapers(event.target.value)} placeholder="Box / papers" />
+          <label className="filter-toggle">
+            <input type="checkbox" checked={featuredOnly} onChange={(event) => setFeaturedOnly(event.target.checked)} />
+            <span>Featured</span>
+          </label>
+          <label className="filter-toggle">
+            <input type="checkbox" checked={hypeOnly} onChange={(event) => setHypeOnly(event.target.checked)} />
+            <span>Hype</span>
+          </label>
+          <label className="filter-toggle">
+            <input type="checkbox" checked={newOnly} onChange={(event) => setNewOnly(event.target.checked)} />
+            <span>New</span>
+          </label>
+        </div>
 
         {isLoading ? (
-          <div className="notice catalogue-notice">Loading catalogue...</div>
+          <div className="notice">Loading catalogue...</div>
         ) : watches && watches.length > 0 ? (
-          <div className="catalogue-grid">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 mt-8">
             {watches.map((watch) => <WatchCard key={watch.id} {...watch} />)}
           </div>
         ) : (
-          <div className="notice catalogue-notice">No watches match the selected filters.</div>
+          <div className="notice">No watches match the selected filters.</div>
         )}
       </div>
     </main>

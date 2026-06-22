@@ -83,9 +83,8 @@ a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
 button, input, select, textarea { font: inherit; }
 
-/* ─── CRT Scanlines (suppressed in admin/catalogue) ─────────────────────── */
-body:has(.admin-shell)::before,
-body:has(.catalogue-shell)::before { display: none; }
+/* ─── CRT Scanlines (suppressed in admin) ───────────────────────────────── */
+body:has(.admin-shell)::before { display: none; }
 body::before {
   content: '';
   position: fixed;
@@ -182,22 +181,6 @@ body::before {
   transition: background 0.2s;
 }
 .nav-links .nav-cta:hover { background: var(--accent-hover); color: #fff; }
-body:has(.catalogue-shell) {
-  background: #eaf2f8;
-}
-body:has(.catalogue-shell) .nav-logo,
-body:has(.catalogue-shell) .nav-links a {
-  color: #1f2a33;
-}
-body:has(.catalogue-shell) .nav-links a:hover {
-  color: #070b0f;
-}
-body:has(.catalogue-shell) .nav-links .nav-cta {
-  color: #f7fbff;
-}
-body:has(.catalogue-shell) .nav-logo-mark {
-  filter: drop-shadow(0 0 8px rgba(38, 49, 58, 0.16));
-}
 
 /* ─── Hero ──────────────────────────────────────────────────────────────── */
 .hero {
@@ -621,271 +604,6 @@ body:has(.catalogue-shell) .nav-logo-mark {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--text-muted);
-}
-
-/* ─── Catalogue Sketch Layout ───────────────────────────────────────────── */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-.catalogue-shell {
-  min-height: 100vh;
-  padding: calc(var(--nav-h) + 0.5rem) clamp(0.45rem, 1.2vw, 0.9rem) 0.9rem;
-  background: #eaf2f8;
-  color: #1f2a33;
-}
-.catalogue-frame {
-  min-height: calc(100vh - var(--nav-h) - 1.4rem);
-  border: 2px solid rgba(32, 43, 52, 0.42);
-  border-radius: 28px;
-  background: #edf5fb;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.64);
-  padding: clamp(4rem, 7.5vw, 7.5rem) clamp(1.35rem, 4.5vw, 5.4rem) clamp(2.5rem, 5vw, 5rem);
-}
-.catalogue-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-.catalogue-sort,
-.catalogue-filter-button {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.9rem;
-  border: 2px solid #26313a;
-  border-radius: 11px;
-  background: rgba(247, 251, 255, 0.58);
-  color: #1f2a33;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
-}
-.catalogue-sort {
-  position: relative;
-  min-width: min(100%, 14rem);
-}
-.catalogue-sort::after {
-  content: "";
-  position: absolute;
-  right: 0.95rem;
-  top: 50%;
-  width: 0.48rem;
-  height: 0.48rem;
-  border-right: 2px solid #26313a;
-  border-bottom: 2px solid #26313a;
-  transform: translateY(-65%) rotate(45deg);
-  pointer-events: none;
-}
-.catalogue-sort select {
-  width: 100%;
-  border: 0;
-  background: transparent;
-  color: #1f2a33;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  padding: 0.56rem 2.2rem 0.56rem 0.85rem;
-  font-size: 0.96rem;
-  font-weight: 650;
-  letter-spacing: 0;
-}
-.catalogue-sort select:focus {
-  outline: none;
-}
-.catalogue-filter-button {
-  cursor: pointer;
-  padding: 0.56rem 1.55rem;
-  font-size: 0.95rem;
-  font-weight: 650;
-  letter-spacing: 0;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-.catalogue-filter-button:hover {
-  background: rgba(255, 255, 255, 0.78);
-  transform: translateY(-1px);
-}
-.catalogue-filter-button:focus-visible,
-.catalogue-sort:focus-within {
-  outline: 3px solid rgba(61, 122, 173, 0.24);
-  outline-offset: 3px;
-}
-.catalogue-rule {
-  height: 2px;
-  background: #26313a;
-  margin: 1.08rem 0 clamp(2.8rem, 5vw, 4rem);
-}
-.catalogue-filter-panel {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 0.75rem;
-  margin: clamp(-2.1rem, -2.6vw, -1.1rem) 0 clamp(2rem, 4vw, 3rem);
-  padding: 1rem;
-  border: 1.5px solid rgba(38, 49, 58, 0.34);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.34);
-}
-.catalogue-shell .filter-input,
-.catalogue-shell .filter-select {
-  min-width: 0;
-  width: 100%;
-  border: 1.5px solid rgba(38, 49, 58, 0.32);
-  border-radius: 10px;
-  background: rgba(247, 251, 255, 0.78);
-  color: #1f2a33;
-  padding: 0.62rem 0.74rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0;
-}
-.catalogue-shell .filter-input.small {
-  width: 100%;
-  min-width: 0;
-}
-.catalogue-shell .filter-input::placeholder {
-  color: rgba(31, 42, 51, 0.55);
-}
-.catalogue-shell .filter-input:focus,
-.catalogue-shell .filter-select:focus {
-  outline: 3px solid rgba(61, 122, 173, 0.22);
-  outline-offset: 1px;
-  border-color: rgba(38, 49, 58, 0.62);
-  color: #1f2a33;
-}
-.catalogue-shell .filter-toggle {
-  min-height: 2.7rem;
-  border: 1.5px solid rgba(38, 49, 58, 0.25);
-  border-radius: 10px;
-  padding: 0 0.75rem;
-  background: rgba(247, 251, 255, 0.56);
-  color: #26313a;
-  font-weight: 650;
-}
-.catalogue-shell .filter-toggle input {
-  accent-color: #3d7aad;
-}
-.catalogue-clear-button {
-  border: 1.5px solid rgba(38, 49, 58, 0.4);
-  border-radius: 10px;
-  background: #26313a;
-  color: #f7fbff;
-  cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 0.6rem 0.9rem;
-}
-.catalogue-count {
-  margin: clamp(-2.4rem, -3vw, -1.2rem) 0 2rem;
-  color: rgba(31, 42, 51, 0.58);
-  font-size: 0.78rem;
-  font-weight: 650;
-  text-align: right;
-}
-.catalogue-filter-panel + .catalogue-count {
-  margin-top: 0;
-}
-.catalogue-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  column-gap: clamp(2rem, 5.4vw, 6.6rem);
-  row-gap: clamp(3.2rem, 6.2vw, 5.4rem);
-}
-.catalogue-shell .watch-card {
-  display: block;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: #1f2a33;
-  transform: none;
-}
-.catalogue-shell .watch-card:hover {
-  border-color: transparent;
-  box-shadow: none;
-  transform: translateY(-2px);
-}
-.catalogue-shell .watch-card-image {
-  aspect-ratio: 0.88 / 1;
-  border: 2px solid #26313a;
-  border-radius: 18px;
-  background: #edf5fb;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
-  transition: border-color 0.2s ease, transform 0.2s ease;
-}
-.catalogue-shell .watch-card:hover .watch-card-image {
-  border-color: #070b0f;
-  transform: translateY(-1px);
-}
-.catalogue-shell .watch-card-image::before {
-  display: none;
-}
-.catalogue-shell .watch-card-image img {
-  object-fit: cover;
-  filter: saturate(0.9) contrast(0.96);
-}
-.catalogue-shell .watch-card-body {
-  display: flex;
-  flex-direction: column;
-  padding: 0.88rem 0 0;
-}
-.catalogue-shell .watch-card-brand {
-  display: none;
-}
-.catalogue-shell .watch-card-model {
-  order: 1;
-  margin: 0 0 0.34rem;
-  color: #1d2831;
-  font-size: clamp(1.02rem, 1.35vw, 1.35rem);
-  font-weight: 650;
-  line-height: 1.16;
-  letter-spacing: 0;
-  text-transform: none;
-}
-.catalogue-shell .watch-card-price {
-  order: 2;
-  margin: 0;
-  color: #101820;
-  font-size: clamp(1rem, 1.25vw, 1.24rem);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: 0.01em;
-}
-.catalogue-shell .watch-card-meta {
-  order: 3;
-  margin: 0.22rem 0 0;
-  color: rgba(31, 42, 51, 0.52);
-  font-size: 0.72rem;
-  font-weight: 600;
-  line-height: 1.25;
-}
-.catalogue-shell .watch-card-status {
-  order: 4;
-  margin-top: 0.55rem;
-  border: 1px solid rgba(38, 49, 58, 0.18);
-  background: rgba(247, 251, 255, 0.72);
-  color: #26313a;
-}
-.catalogue-shell .watch-card-placeholder {
-  background: #edf5fb;
-  color: #26313a;
-}
-.catalogue-shell .watch-card-placeholder-icon {
-  border-color: rgba(38, 49, 58, 0.34);
-  color: #26313a;
-}
-.catalogue-shell .watch-card-placeholder-hash {
-  color: rgba(31, 42, 51, 0.45);
-}
-.catalogue-notice {
-  border: 1.5px solid rgba(38, 49, 58, 0.25);
-  background: rgba(247, 251, 255, 0.66);
-  color: rgba(31, 42, 51, 0.65);
 }
 
 /* ─── Watch Detail ──────────────────────────────────────────────────────── */
@@ -1778,61 +1496,16 @@ body:has(.catalogue-shell) .nav-logo-mark {
   }
 }
 
-/* ─── Catalogue responsive layout ───────────────────────────────────────── */
-@media (max-width: 1180px) {
-  .catalogue-frame {
-    padding-left: clamp(1.25rem, 3.5vw, 3rem);
-    padding-right: clamp(1.25rem, 3.5vw, 3rem);
-  }
+/* ─── Catalogue grid: explicit 2-col on mobile (overrides auto-fill) ─────── */
+@media (max-width: 700px) {
   .catalogue-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: clamp(1.6rem, 4vw, 3rem);
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem;
   }
 }
-@media (max-width: 780px) {
-  .catalogue-shell {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-  .catalogue-frame {
-    border-radius: 22px;
-    padding-top: 3.4rem;
-  }
-  .catalogue-controls {
-    align-items: stretch;
-  }
-  .catalogue-sort {
-    min-width: 0;
-    flex: 1;
-  }
-  .catalogue-filter-button {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
+@media (max-width: 380px) {
   .catalogue-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 1.15rem;
-    row-gap: 2.6rem;
-  }
-  .catalogue-count {
-    text-align: left;
-  }
-}
-@media (max-width: 460px) {
-  .catalogue-frame {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  .catalogue-controls {
-    flex-direction: column;
-  }
-  .catalogue-sort,
-  .catalogue-filter-button {
-    width: 100%;
-  }
-  .catalogue-grid {
-    grid-template-columns: 1fr;
-    row-gap: 2.2rem;
+    grid-template-columns: 1fr !important;
   }
 }
 
