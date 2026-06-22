@@ -281,3 +281,13 @@ corepack pnpm check
 corepack pnpm test
 corepack pnpm build
 ```
+
+## Netlify
+
+The repository includes `netlify.toml` for static Netlify deploys:
+
+- Build command: `corepack pnpm build`
+- Publish directory: `dist/public`
+- SPA fallback: `/* -> /index.html`
+
+This fixes Netlify 404s for client-side routes such as `/catalogue`, `/watches/:slug`, and `/admin/suppliers`.
