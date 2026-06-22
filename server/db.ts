@@ -151,14 +151,13 @@ function warnDbUnavailable(error: unknown) {
 export async function getDb() {
   if (process.env.NO_DATABASE === "1") return null;
   if (dbState === "connected" && db) return db;
-  if (dbState === "unavailable") return null;
 
   try {
     pool = new Pool({
       connectionString: databaseUrl(),
       max: 5,
       idleTimeoutMillis: 10_000,
-      connectionTimeoutMillis: 1_500,
+      connectionTimeoutMillis: 10_000,
     });
     await pool.query("select 1");
     db = drizzle(pool);
