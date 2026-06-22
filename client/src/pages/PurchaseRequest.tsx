@@ -2,6 +2,22 @@ import { useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 
+type CryptoCurrency =
+  | "btc"
+  | "eth"
+  | "usdt"
+  | "usdc"
+  | "xmr"
+  | "ltc"
+  | "doge"
+  | "dash"
+  | "sol"
+  | "bnb"
+  | "trx"
+  | "matic"
+  | "none"
+  | "other";
+
 export default function PurchaseRequest() {
   const { watchId } = useParams<{ watchId: string }>();
   const [, navigate] = useLocation();
@@ -16,7 +32,7 @@ export default function PurchaseRequest() {
     customerPhone: "",
     customerCountry: "",
     preferredPaymentMethod: "crypto" as "crypto" | "bank_transfer" | "other",
-    cryptoCurrency: "none" as "btc" | "eth" | "usdt" | "usdc" | "none" | "other",
+    cryptoCurrency: "none" as CryptoCurrency,
     walletAddress: "",
     transactionHash: "",
     message: "",
@@ -24,7 +40,13 @@ export default function PurchaseRequest() {
   const [error, setError] = useState("");
 
   const createMutation = trpc.requests.create.useMutation({
-    onSuccess: () => navigate("/request/confirmation"),
+    onSuccess: (result) => {
+      if (result.payment.enabled && "checkoutUrl" in result.payment) {
+        window.location.href = result.payment.checkoutUrl;
+        return;
+      }
+      navigate("/request/confirmation");
+    },
     onError: (e) => setError(e.message),
   });
 
@@ -51,7 +73,7 @@ export default function PurchaseRequest() {
             </p>
           )}
           <p className="section-lede" style={{ marginTop: "0.75rem" }}>
-            Submit your details below. Helvetic Reserve will confirm availability and reach out directly. No invoice or payment is required at this stage.
+            Submit your details below. If crypto checkout is available, you can continue to BTCPay after the request. Helvetic Reserve still manually reviews availability, compliance, delivery, and final fulfilment.
           </p>
         </div>
 
@@ -122,13 +144,21 @@ export default function PurchaseRequest() {
               <select
                 className="form-select"
                 value={form.cryptoCurrency}
-                onChange={e => setForm(f => ({ ...f, cryptoCurrency: e.target.value as any }))}
+                onChange={e => setForm(f => ({ ...f, cryptoCurrency: e.target.value as CryptoCurrency }))}
               >
-                <option value="none">Not decided</option>
+                <option value="none">Choose in checkout / not decided</option>
                 <option value="btc">Bitcoin (BTC)</option>
                 <option value="eth">Ethereum (ETH)</option>
                 <option value="usdt">Tether (USDT)</option>
                 <option value="usdc">USD Coin (USDC)</option>
+                <option value="xmr">Monero (XMR)</option>
+                <option value="ltc">Litecoin (LTC)</option>
+                <option value="doge">Dogecoin (DOGE)</option>
+                <option value="dash">Dash (DASH)</option>
+                <option value="sol">Solana (SOL)</option>
+                <option value="bnb">BNB</option>
+                <option value="trx">TRON (TRX)</option>
+                <option value="matic">Polygon (MATIC)</option>
                 <option value="other">Other crypto</option>
               </select>
             </div>
@@ -177,7 +207,7 @@ export default function PurchaseRequest() {
               className="button lg"
               disabled={createMutation.isPending}
             >
-              {createMutation.isPending ? "Sending…" : "Submit request"}
+              {createMutation.isPending ? "Sending..." : "Submit request"}
             </button>
             <Link href={`/watches/${thisWatch?.slug ?? ""}`} className="button secondary">
               Cancel
@@ -187,7 +217,7 @@ export default function PurchaseRequest() {
           <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
             By submitting this form you agree to be contacted at {""}
             <a href="mailto:contact@helvetic-reserve.com" style={{ color: "var(--accent)" }}>contact@helvetic-reserve.com</a>{" "}
-            or by the details provided. No payment instruction is valid until Helvetic Reserve manually confirms availability, price, compliance, and delivery.
+            or by the details provided. BTCPay checkout may show the enabled coins for this store, including XMR when your BTCPay Monero plugin is configured. A payment does not bypass manual compliance, availability, delivery, or fulfilment review.
           </p>
         </form>
       </div>

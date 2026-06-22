@@ -45,10 +45,12 @@ import {
   enqueueRetryProductOrRun,
   scheduleSupplierSyncJobs,
 } from "./supplierSync/queue";
-import { COOKIE_NAME } from "@shared/const";
+import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { authenticateAdminPasswordLogin } from "./passwordAuth";
+import { createBtcpayInvoiceForRequest } from "./payments/btcpay";
 
 // Admin guard
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -167,6 +169,24 @@ export const appRouter = router({
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    login: publicProcedure
+      .input(z.object({
+        email: z.string().trim().email().max(320),
+        password: z.string().min(8).max(512),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const result = await authenticateAdminPasswordLogin({
+          email: input.email,
+          password: input.password,
+          req: ctx.req,
+        });
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, result.token, {
+          ...cookieOptions,
+          maxAge: ONE_YEAR_MS,
+        });
+        return result.user;
+      }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
@@ -224,8 +244,38 @@ export const appRouter = router({
         customerCountry: z.string().optional(),
         message: z.string().optional(),
         preferredPaymentMethod: z.enum(["crypto", "bank_transfer", "other"]).optional(),
-        cryptoCurrency: z.enum(["btc", "eth", "usdt", "usdc", "none", "other"]).optional(),
-        cryptoPreference: z.enum(["btc", "eth", "usdt", "usdc", "none", "other"]).optional(),
+        cryptoCurrency: z.enum([
+          "btc",
+          "eth",
+          "usdt",
+          "usdc",
+          "xmr",
+          "ltc",
+          "doge",
+          "dash",
+          "sol",
+          "bnb",
+          "trx",
+          "matic",
+          "none",
+          "other",
+        ]).optional(),
+        cryptoPreference: z.enum([
+          "btc",
+          "eth",
+          "usdt",
+          "usdc",
+          "xmr",
+          "ltc",
+          "doge",
+          "dash",
+          "sol",
+          "bnb",
+          "trx",
+          "matic",
+          "none",
+          "other",
+        ]).optional(),
         walletAddress: z.string().optional(),
         transactionHash: z.string().optional(),
       }))
@@ -241,7 +291,22 @@ export const appRouter = router({
           const message = error instanceof Error ? error.message : String(error);
           console.warn(`[Email] Purchase request notification failed: ${message}`);
         });
-        return request;
+
+        try {
+          const payment = await createBtcpayInvoiceForRequest({ request, watch });
+          return { request, payment };
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "BTCPay checkout could not be created.";
+          console.warn(`[BTCPay] Checkout creation failed: ${message}`);
+          return {
+            request,
+            payment: {
+              enabled: true,
+              processor: "btcpay" as const,
+              error: "Request saved, but crypto checkout could not be created. Helvetic Reserve will contact you.",
+            },
+          };
+        }
       }),
   }),
 

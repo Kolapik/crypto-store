@@ -40,8 +40,39 @@ type Availability = "available" | "reserved" | "sold" | "hidden";
 type Visibility = "public" | "private" | "archived";
 type PublicationStatus = "draft" | "published" | "archived";
 type RequestStatus = "new" | "reviewing" | "confirmed" | "declined" | "completed";
-type CryptoCurrency = "btc" | "eth" | "usdt" | "usdc" | "none" | "other";
+type CryptoCurrency =
+  | "btc"
+  | "eth"
+  | "usdt"
+  | "usdc"
+  | "xmr"
+  | "ltc"
+  | "doge"
+  | "dash"
+  | "sol"
+  | "bnb"
+  | "trx"
+  | "matic"
+  | "none"
+  | "other";
 type PaymentMethod = "crypto" | "bank_transfer" | "other";
+type PaymentUpdate = Partial<
+  Pick<
+    InsertPurchaseRequest,
+    | "paymentProcessor"
+    | "paymentInvoiceId"
+    | "paymentCheckoutUrl"
+    | "paymentStatus"
+    | "paymentAmount"
+    | "paymentCurrency"
+    | "paymentInvoiceCreatedAt"
+    | "paymentInvoiceExpiresAt"
+    | "paymentSettledAt"
+    | "paymentRawData"
+    | "status"
+    | "adminNotes"
+  >
+>;
 
 export type PublicWatch = Omit<
   Watch,
@@ -867,12 +898,65 @@ export async function createPurchaseRequest(data: InsertPurchaseRequest & Record
         cryptoCurrency: payload.cryptoCurrency ?? "none",
         walletAddress: payload.walletAddress ?? null,
         transactionHash: payload.transactionHash ?? null,
+        paymentProcessor: payload.paymentProcessor ?? null,
+        paymentInvoiceId: payload.paymentInvoiceId ?? null,
+        paymentCheckoutUrl: payload.paymentCheckoutUrl ?? null,
+        paymentStatus: payload.paymentStatus ?? null,
+        paymentAmount: payload.paymentAmount ?? null,
+        paymentCurrency: payload.paymentCurrency ?? null,
+        paymentInvoiceCreatedAt: payload.paymentInvoiceCreatedAt ?? null,
+        paymentInvoiceExpiresAt: payload.paymentInvoiceExpiresAt ?? null,
+        paymentSettledAt: payload.paymentSettledAt ?? null,
+        paymentRawData: payload.paymentRawData ?? {},
         status: payload.status ?? "new",
         adminNotes: payload.adminNotes ?? null,
         createdAt,
         updatedAt: createdAt,
       };
       demoRequests.unshift(request);
+      return toPurchaseDto(request);
+    },
+  );
+}
+
+export async function updatePurchaseRequestPayment(id: number, data: PaymentUpdate) {
+  const updatedAt = now();
+  return withDb(
+    async (database) => {
+      const result = await database
+        .update(purchaseRequests)
+        .set({ ...data, updatedAt })
+        .where(eq(purchaseRequests.id, id))
+        .returning();
+      return result[0] ? toPurchaseDto(result[0]) : undefined;
+    },
+    () => {
+      const request = demoRequests.find((item) => item.id === id);
+      if (!request) return undefined;
+      Object.assign(request, data, { updatedAt });
+      return toPurchaseDto(request);
+    },
+  );
+}
+
+export async function updatePurchaseRequestPaymentByInvoiceId(
+  invoiceId: string,
+  data: PaymentUpdate,
+) {
+  const updatedAt = now();
+  return withDb(
+    async (database) => {
+      const result = await database
+        .update(purchaseRequests)
+        .set({ ...data, updatedAt })
+        .where(eq(purchaseRequests.paymentInvoiceId, invoiceId))
+        .returning();
+      return result[0] ? toPurchaseDto(result[0]) : undefined;
+    },
+    () => {
+      const request = demoRequests.find((item) => item.paymentInvoiceId === invoiceId);
+      if (!request) return undefined;
+      Object.assign(request, data, { updatedAt });
       return toPurchaseDto(request);
     },
   );
@@ -975,6 +1059,7 @@ export async function getSystemHealth() {
     database: database ? "connected" : "local-demo-fallback",
     storage: process.env.R2_BUCKET ? "r2-configured" : "local/public-folder",
     email: emailStatus(),
+    payments: ENV.btcpayEnabled ? "btcpay-configured" : "btcpay-disabled",
     publicDataSeparation: "enforced",
   };
 }

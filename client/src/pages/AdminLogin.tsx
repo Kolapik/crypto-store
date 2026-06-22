@@ -1,11 +1,14 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
-import { useEffect } from "react";
+import { trpc } from "@/lib/trpc";
+import { type FormEvent, useEffect, useState } from "react";
 import { useLocation } from "wouter";
 
 export default function AdminLogin() {
   const { isAuthenticated, user, loading } = useAuth();
+  const utils = trpc.useUtils();
   const [, navigate] = useLocation();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     if (!loading && isAuthenticated && user?.role === "admin") {
@@ -13,16 +16,19 @@ export default function AdminLogin() {
     }
   }, [isAuthenticated, user, loading, navigate]);
 
-  const loginUrl = getLoginUrl();
-  const fallbackLoginUrl = isAuthenticated && user?.role === "admin"
-    ? "/admin/dashboard"
-    : "/admin/dashboard";
-  const buttonUrl = loginUrl ?? fallbackLoginUrl;
-  const buttonLabel = loading
-    ? "Checking session…"
-    : loginUrl
-      ? "Sign in with Manus"
-      : "Open local admin preview";
+  const loginMutation = trpc.auth.login.useMutation({
+    onSuccess: async () => {
+      await utils.auth.me.invalidate();
+      navigate("/admin/dashboard");
+    },
+  });
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    loginMutation.mutate({ email, password });
+  };
+
+  const busy = loading || loginMutation.isPending;
 
   return (
     <div className="auth-page">
@@ -32,17 +38,43 @@ export default function AdminLogin() {
           <p className="auth-subtitle">Admin access</p>
         </div>
 
-        <div style={{ display: "grid", gap: "0.75rem" }}>
-          <a href={buttonUrl} className="button lg" style={{ textAlign: "center", display: "block" }}>
-            {buttonLabel}
-          </a>
-        </div>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <label className="form-label" htmlFor="admin-email">Email</label>
+          <input
+            id="admin-email"
+            className="form-input"
+            type="email"
+            autoComplete="username"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+          />
+
+          <label className="form-label" htmlFor="admin-password">Password</label>
+          <input
+            id="admin-password"
+            className="form-input"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+          />
+
+          {loginMutation.error ? (
+            <p className="auth-error">{loginMutation.error.message}</p>
+          ) : null}
+
+          <button className="button lg" type="submit" disabled={busy}>
+            {busy ? "Checking access..." : "Log in"}
+          </button>
+        </form>
 
         <p style={{ marginTop: "1.25rem", fontSize: "0.72rem", color: "var(--text-muted)", textAlign: "center", lineHeight: 1.5 }}>
           Admin access is restricted to Helvetic Reserve operators.
         </p>
 
-        <a href="/" className="auth-back">← Back to catalogue</a>
+        <a href="/" className="auth-back">← Back to home</a>
       </div>
     </div>
   );

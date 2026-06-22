@@ -10,6 +10,7 @@
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
+    "auth:hash-password": "tsx server/hashPassword.ts",
     "db:push": "drizzle-kit migrate",
     "db:generate": "drizzle-kit generate",
     "db:sql": "tsx server/applySql.ts",

@@ -29,6 +29,13 @@
       "when": 1782118800000,
       "tag": "0003_image_enhancements",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1782122400000,
+      "tag": "0004_btcpay_payments",
+      "breakpoints": true
     }
   ]
 }

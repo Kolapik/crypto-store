@@ -6,6 +6,7 @@ import type { Request } from "express";
 import { SignJWT, jwtVerify } from "jose";
 import type { User } from "../../drizzle/schema";
 import * as db from "../db";
+import { buildConfiguredAdminUser } from "./adminIdentity";
 import { ENV } from "./env";
 import type {
   ExchangeTokenRequest,
@@ -27,6 +28,7 @@ export type SessionPayload = {
 const EXCHANGE_TOKEN_PATH = `/webdev.v1.WebDevAuthPublicService/ExchangeToken`;
 const GET_USER_INFO_PATH = `/webdev.v1.WebDevAuthPublicService/GetUserInfo`;
 const GET_USER_INFO_WITH_JWT_PATH = `/webdev.v1.WebDevAuthPublicService/GetUserInfoWithJwt`;
+const SESSION_APP_ID_FALLBACK = "helvetic-reserve";
 
 class OAuthService {
   constructor(private client: ReturnType<typeof axios.create>) {
@@ -171,7 +173,7 @@ class SDKServer {
     return this.signSession(
       {
         openId,
-        appId: ENV.appId,
+        appId: ENV.appId || SESSION_APP_ID_FALLBACK,
         name: options.name || "",
       },
       options
@@ -278,6 +280,21 @@ class SDKServer {
     const sessionUserId = session.openId;
     const signedInAt = new Date();
     let user = await db.getUserByOpenId(sessionUserId);
+
+    if (!user) {
+      const configuredAdmin = buildConfiguredAdminUser(sessionUserId);
+      if (configuredAdmin) {
+        await db.upsertUser({
+          openId: configuredAdmin.openId,
+          name: configuredAdmin.name,
+          email: configuredAdmin.email,
+          loginMethod: configuredAdmin.loginMethod,
+          role: configuredAdmin.role,
+          lastSignedIn: signedInAt,
+        });
+        user = (await db.getUserByOpenId(sessionUserId)) ?? configuredAdmin;
+      }
+    }
 
     // If user not in DB, sync from OAuth server automatically
     if (!user) {

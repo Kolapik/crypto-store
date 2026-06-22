@@ -12,7 +12,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="admin-table-title">Data we collect</h2>
             <p>
-              Helvetic Reserve may collect name, email, phone or WhatsApp details, country, billing and shipping details, watch interest, request messages, preferred payment method, wallet address, transaction hash, KYC documents, compliance notes, and communications.
+              Helvetic Reserve may collect name, email, phone or WhatsApp details, country, billing and shipping details, watch interest, request messages, preferred payment method, crypto preference, payment processor invoice identifiers, checkout status, wallet address, transaction hash, KYC documents, compliance notes, and communications.
             </p>
           </section>
 

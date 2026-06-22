@@ -11,6 +11,8 @@ function numberEnv(name: string, fallback: number) {
 export const ENV = {
   appId: process.env.VITE_APP_ID ?? "",
   cookieSecret: process.env.JWT_SECRET ?? "",
+  adminEmail: process.env.ADMIN_EMAIL ?? "",
+  adminPasswordHash: process.env.ADMIN_PASSWORD_HASH ?? "",
   databaseUrl: process.env.DATABASE_URL ?? "",
   devDatabaseUrl: process.env.DEV_DATABASE_URL ?? "",
   oAuthServerUrl: process.env.OAUTH_SERVER_URL ?? "",
@@ -42,4 +44,11 @@ export const ENV = {
   cloudflareEmailTo: process.env.CLOUDFLARE_EMAIL_TO ?? "contact@helvetic-reserve.com",
   cloudflareEmailSendCustomerConfirmation:
     process.env.CLOUDFLARE_EMAIL_SEND_CUSTOMER_CONFIRMATION === "1",
+  publicSiteUrl: process.env.PUBLIC_SITE_URL ?? "http://127.0.0.1:3000",
+  btcpayEnabled: process.env.BTCPAY_ENABLED === "1",
+  btcpayServerUrl: process.env.BTCPAY_SERVER_URL ?? "",
+  btcpayStoreId: process.env.BTCPAY_STORE_ID ?? "",
+  btcpayApiKey: process.env.BTCPAY_API_KEY ?? "",
+  btcpayWebhookSecret: process.env.BTCPAY_WEBHOOK_SECRET ?? "",
+  btcpayDefaultCurrency: process.env.BTCPAY_DEFAULT_CURRENCY ?? "CHF",
 };

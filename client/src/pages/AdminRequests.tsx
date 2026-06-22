@@ -50,6 +50,7 @@ export default function AdminRequests() {
                 <th>Customer</th>
                 <th>Watch</th>
                 <th>Crypto</th>
+                <th>Payment</th>
                 <th>Status</th>
                 <th>Date</th>
                 <th>Actions</th>
@@ -71,6 +72,9 @@ export default function AdminRequests() {
                     </td>
                     <td>
                       <span className="mono">{request.cryptoCurrency?.toUpperCase() ?? request.cryptoPreference?.toUpperCase() ?? "—"}</span>
+                    </td>
+                    <td>
+                      <span className="mono">{request.paymentStatus || "—"}</span>
                     </td>
                     <td>
                       <span className={`pill ${request.status}`}>{request.status}</span>
@@ -96,7 +100,7 @@ export default function AdminRequests() {
                   </tr>
                   {expandedId === request.id && (
                     <tr key={`${request.id}-expanded`}>
-                      <td colSpan={6} style={{ background: "var(--bg-elevated)", padding: "1rem 1.5rem" }}>
+                      <td colSpan={7} style={{ background: "var(--bg-elevated)", padding: "1rem 1.5rem" }}>
                         {request.message && (
                           <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginBottom: "0.75rem" }}>
                             <strong style={{ color: "var(--text-muted)", fontSize: "0.68rem", letterSpacing: "0.1em", textTransform: "uppercase" }}>Customer message:</strong><br />
@@ -109,7 +113,23 @@ export default function AdminRequests() {
                           <p className="mono">Crypto: {request.cryptoCurrency?.toUpperCase() || "—"}</p>
                           <p className="mono">Wallet: {request.walletAddress || "—"}</p>
                           <p className="mono">Tx hash: {request.transactionHash || "—"}</p>
+                          <p className="mono">Processor: {request.paymentProcessor || "—"}</p>
+                          <p className="mono">Invoice: {request.paymentInvoiceId || "—"}</p>
+                          <p className="mono">Amount: {request.paymentAmount ? `${request.paymentCurrency || ""} ${request.paymentAmount}` : "—"}</p>
+                          <p className="mono">Payment status: {request.paymentStatus || "—"}</p>
                         </div>
+                        {request.paymentCheckoutUrl && (
+                          <p style={{ marginBottom: "0.9rem" }}>
+                            <a
+                              href={request.paymentCheckoutUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="button sm secondary"
+                            >
+                              Open BTCPay checkout
+                            </a>
+                          </p>
+                        )}
                         <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-end" }}>
                           <div className="form-group" style={{ flex: 1 }}>
                             <label className="form-label">Admin notes</label>

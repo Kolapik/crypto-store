@@ -41,7 +41,7 @@ EXCEPTION
 END $$;
 
 DO $$ BEGIN
-  CREATE TYPE crypto_currency AS ENUM ('btc', 'eth', 'usdt', 'usdc', 'none', 'other');
+  CREATE TYPE crypto_currency AS ENUM ('btc', 'eth', 'usdt', 'usdc', 'xmr', 'ltc', 'doge', 'dash', 'sol', 'bnb', 'trx', 'matic', 'none', 'other');
 EXCEPTION
   WHEN duplicate_object THEN NULL;
 END $$;
@@ -142,15 +142,37 @@ CREATE TABLE IF NOT EXISTS purchase_requests (
   crypto_currency crypto_currency DEFAULT 'none',
   wallet_address text,
   transaction_hash text,
+  payment_processor varchar(32),
+  payment_invoice_id text,
+  payment_checkout_url text,
+  payment_status varchar(64),
+  payment_amount numeric(14, 2),
+  payment_currency varchar(8),
+  payment_invoice_created_at timestamptz,
+  payment_invoice_expires_at timestamptz,
+  payment_settled_at timestamptz,
+  payment_raw_data jsonb NOT NULL DEFAULT '{}'::jsonb,
   status purchase_request_status NOT NULL DEFAULT 'new',
   admin_notes text,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
+ALTER TABLE purchase_requests ADD COLUMN IF NOT EXISTS payment_processor varchar(32);
+ALTER TABLE purchase_requests ADD COLUMN IF NOT EXISTS payment_invoice_id text;
+ALTER TABLE purchase_requests ADD COLUMN IF NOT EXISTS payment_checkout_url text;
+ALTER TABLE purchase_requests ADD COLUMN IF NOT EXISTS payment_status varchar(64);
+ALTER TABLE purchase_requests ADD COLUMN IF NOT EXISTS payment_amount numeric(14, 2);
+ALTER TABLE purchase_requests ADD COLUMN IF NOT EXISTS payment_currency varchar(8);
+ALTER TABLE purchase_requests ADD COLUMN IF NOT EXISTS payment_invoice_created_at timestamptz;
+ALTER TABLE purchase_requests ADD COLUMN IF NOT EXISTS payment_invoice_expires_at timestamptz;
+ALTER TABLE purchase_requests ADD COLUMN IF NOT EXISTS payment_settled_at timestamptz;
+ALTER TABLE purchase_requests ADD COLUMN IF NOT EXISTS payment_raw_data jsonb NOT NULL DEFAULT '{}'::jsonb;
+
 CREATE INDEX IF NOT EXISTS purchase_requests_watch_id_idx ON purchase_requests (watch_id);
 CREATE INDEX IF NOT EXISTS purchase_requests_status_idx ON purchase_requests (status);
 CREATE INDEX IF NOT EXISTS purchase_requests_customer_email_idx ON purchase_requests (customer_email);
+CREATE INDEX IF NOT EXISTS purchase_requests_payment_invoice_id_idx ON purchase_requests (payment_invoice_id);
 
 CREATE TABLE IF NOT EXISTS uploaded_images (
   id serial PRIMARY KEY,

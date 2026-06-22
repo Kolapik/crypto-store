@@ -55,6 +55,14 @@ export const cryptoCurrencyEnum = pgEnum("crypto_currency", [
   "eth",
   "usdt",
   "usdc",
+  "xmr",
+  "ltc",
+  "doge",
+  "dash",
+  "sol",
+  "bnb",
+  "trx",
+  "matic",
   "none",
   "other",
 ]);
@@ -220,6 +228,19 @@ export const purchaseRequests = pgTable(
     cryptoCurrency: cryptoCurrencyEnum("crypto_currency").default("none"),
     walletAddress: text("wallet_address"),
     transactionHash: text("transaction_hash"),
+    paymentProcessor: varchar("payment_processor", { length: 32 }),
+    paymentInvoiceId: text("payment_invoice_id"),
+    paymentCheckoutUrl: text("payment_checkout_url"),
+    paymentStatus: varchar("payment_status", { length: 64 }),
+    paymentAmount: numeric("payment_amount", { precision: 14, scale: 2 }),
+    paymentCurrency: varchar("payment_currency", { length: 8 }),
+    paymentInvoiceCreatedAt: timestamp("payment_invoice_created_at", { withTimezone: true }),
+    paymentInvoiceExpiresAt: timestamp("payment_invoice_expires_at", { withTimezone: true }),
+    paymentSettledAt: timestamp("payment_settled_at", { withTimezone: true }),
+    paymentRawData: jsonb("payment_raw_data")
+      .$type<Record<string, unknown>>()
+      .default(sql`'{}'::jsonb`)
+      .notNull(),
     status: purchaseRequestStatusEnum("status").default("new").notNull(),
     adminNotes: text("admin_notes"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -229,6 +250,7 @@ export const purchaseRequests = pgTable(
     watchIdx: index("purchase_requests_watch_id_idx").on(table.watchId),
     statusIdx: index("purchase_requests_status_idx").on(table.status),
     emailIdx: index("purchase_requests_customer_email_idx").on(table.customerEmail),
+    paymentInvoiceIdx: index("purchase_requests_payment_invoice_id_idx").on(table.paymentInvoiceId),
   }),
 );
 

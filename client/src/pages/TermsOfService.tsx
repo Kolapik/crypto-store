@@ -12,7 +12,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="admin-table-title">Request-based service</h2>
             <p>
-              Helvetic Reserve is a Switzerland-based, request-based luxury watch broker and seller. The website does not provide instant checkout. A submitted request is an inquiry only and does not create a binding sale, invoice, reservation, or payment obligation.
+              Helvetic Reserve is a Switzerland-based, request-based luxury watch broker and seller. A submitted request is an inquiry and does not by itself create a binding sale, reservation, delivery obligation, or fulfilment obligation. Where crypto checkout is offered, payment processing remains subject to Helvetic Reserve review and acceptance.
             </p>
           </section>
 
@@ -26,7 +26,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="admin-table-title">Payment and compliance</h2>
             <p>
-              The MVP supports crypto payment review manually. No payment instruction is valid until Helvetic Reserve confirms the final price, availability, compliance requirements, delivery terms, and payment details directly. Helvetic Reserve may request identification, proof/source of funds, wallet information, transaction hash, billing or shipping information, and other compliance information before proceeding.
+              Crypto checkout may be provided through BTCPay Server for enabled currencies, including Monero where the store is configured for XMR. A blockchain payment or BTCPay invoice status does not bypass final availability, price, compliance, delivery, sanctions, fraud, tax, or fulfilment review. Helvetic Reserve may request identification, proof/source of funds, wallet information, transaction hash, billing or shipping information, and other compliance information before accepting or completing a sale.
             </p>
           </section>
 
