@@ -136,6 +136,7 @@ let pool: Pool | null = null;
 let db: Db | null = null;
 let dbState: "unknown" | "connected" | "unavailable" = "unknown";
 let warnedUnavailable = false;
+let lastDatabaseError: string | null = null;
 
 function databaseUrl() {
   return ENV.databaseUrl || LOCAL_DATABASE_URL;
@@ -149,11 +150,16 @@ function databaseSslConfig() {
   return undefined;
 }
 
+function safeDatabaseError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.replace(/postgres(?:ql)?:\/\/[^@\s]+@/gi, "postgresql://[redacted]@");
+}
+
 function warnDbUnavailable(error: unknown) {
+  lastDatabaseError = safeDatabaseError(error);
   if (warnedUnavailable) return;
   warnedUnavailable = true;
-  const message = error instanceof Error ? error.message : String(error);
-  console.warn(`[Database] PostgreSQL unavailable, using local demo data: ${message}`);
+  console.warn(`[Database] PostgreSQL unavailable, using local demo data: ${lastDatabaseError}`);
 }
 
 export async function getDb() {
@@ -171,6 +177,7 @@ export async function getDb() {
     await pool.query("select 1");
     db = drizzle(pool);
     dbState = "connected";
+    lastDatabaseError = null;
     return db;
   } catch (error) {
     dbState = "unavailable";
@@ -1097,6 +1104,8 @@ export async function getSystemHealth() {
   const database = await getDb();
   return {
     database: database ? "connected" : "local-demo-fallback",
+    databaseConfigured: Boolean(ENV.databaseUrl),
+    databaseLastError: database ? null : lastDatabaseError,
     storage: process.env.R2_BUCKET ? "r2-configured" : "local/public-folder",
     email: emailStatus(),
     payments: ENV.btcpayEnabled ? "btcpay-configured" : "btcpay-disabled",
