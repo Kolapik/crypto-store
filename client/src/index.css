@@ -1057,6 +1057,39 @@ body::before {
   color: var(--text-primary);
   margin: 0;
 }
+.admin-filter-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.admin-filter-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.42rem 0.72rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.admin-filter-tab:hover,
+.admin-filter-tab.active {
+  border-color: var(--accent);
+  background: var(--accent-muted);
+  color: var(--text-primary);
+}
+.admin-filter-tab span {
+  font-family: 'Courier New', monospace;
+  color: var(--text-muted);
+  letter-spacing: 0;
+}
 .admin-table { width: 100%; border-collapse: collapse; }
 .admin-table th {
   font-size: 0.62rem;
@@ -1078,8 +1111,15 @@ body::before {
 }
 .admin-table tr:last-child td { border-bottom: none; }
 .admin-table tr:hover td { background: rgba(255,255,255,0.02); }
+.admin-table tr.admin-row-muted td { opacity: 0.72; }
 .admin-table td .primary { color: var(--text-primary); font-weight: 500; }
 .admin-table td .mono { font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--text-muted); }
+.admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
 
 .supplier-admin-grid {
   display: grid;

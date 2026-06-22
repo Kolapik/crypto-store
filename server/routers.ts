@@ -4,6 +4,7 @@ import {
   archiveWatch,
   createPurchaseRequest,
   createWatch,
+  deleteWatch,
   duplicateWatch,
   getAllPurchaseRequests,
   getAllWatchesAdmin,
@@ -346,6 +347,23 @@ export const appRouter = router({
       archive: adminProcedure
         .input(z.object({ id: z.number() }))
         .mutation(({ input }) => archiveWatch(input.id)),
+
+      delete: adminProcedure
+        .input(z.object({ id: z.number().int().positive() }))
+        .mutation(async ({ input }) => {
+          try {
+            const deleted = await deleteWatch(input.id);
+            if (!deleted) {
+              throw new TRPCError({ code: "NOT_FOUND", message: "Watch not found." });
+            }
+            return deleted;
+          } catch (error) {
+            if (error instanceof TRPCError) throw error;
+            const message = error instanceof Error ? error.message : "Watch could not be deleted.";
+            const code = /customer requests/i.test(message) ? "CONFLICT" : "INTERNAL_SERVER_ERROR";
+            throw new TRPCError({ code, message });
+          }
+        }),
 
       duplicate: adminProcedure
         .input(z.object({ id: z.number() }))

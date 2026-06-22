@@ -810,6 +810,38 @@ export async function archiveWatch(id: number) {
   });
 }
 
+export async function deleteWatch(id: number) {
+  const database = await getDb();
+  if (!database) {
+    if (ENV.databaseUrl && process.env.NO_DATABASE !== "1") {
+      throw new Error("Database unavailable. Cannot delete watches while PostgreSQL is unreachable.");
+    }
+
+    const request = demoRequests.find((item) => item.watchId === id);
+    if (request) {
+      throw new Error("This watch has customer requests. Archive it instead to preserve request history.");
+    }
+
+    const index = demoWatches.findIndex((watch) => watch.id === id);
+    if (index === -1) return undefined;
+    const [deleted] = demoWatches.splice(index, 1);
+    return deleted ? toAdminWatch(deleted) : undefined;
+  }
+
+  const linkedRequests = await database
+    .select({ id: purchaseRequests.id })
+    .from(purchaseRequests)
+    .where(eq(purchaseRequests.watchId, id))
+    .limit(1);
+
+  if (linkedRequests.length > 0) {
+    throw new Error("This watch has customer requests. Archive it instead to preserve request history.");
+  }
+
+  const deleted = await database.delete(watches).where(eq(watches.id, id)).returning();
+  return deleted[0] ? toAdminWatch(deleted[0]) : undefined;
+}
+
 export async function duplicateWatch(id: number) {
   const source = await getWatchById(id);
   if (!source) return undefined;
