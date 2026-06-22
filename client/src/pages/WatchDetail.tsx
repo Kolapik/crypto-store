@@ -31,7 +31,6 @@ export default function WatchDetail() {
 
   const hash = hashFromSlug(watch.slug);
   const condLabel = watch.condition ? CONDITION_LABELS[watch.condition] ?? watch.condition : null;
-  const isAvailable = watch.status === "available";
 
   return (
     <main>
@@ -73,10 +72,6 @@ export default function WatchDetail() {
                 ? `${watch.currency ?? "CHF"} ${Number(watch.price).toLocaleString("de-CH")}`
                 : "Price on request"}
             </p>
-
-            <span className={`pill ${watch.status}`} style={{ marginBottom: "1.5rem", display: "inline-flex" }}>
-              {watch.status}
-            </span>
 
             {/* Specs */}
             <div className="watch-detail-specs">
@@ -148,25 +143,12 @@ export default function WatchDetail() {
 
             {/* CTA */}
             <div className="watch-detail-cta">
-              {isAvailable ? (
-                <>
-                  <Link href={`/request/${watch.id}`} className="button lg" style={{ textAlign: "center" }}>
-                    Request this watch
-                  </Link>
-                  <p className="cta-disclaimer">
-                    No payment obligation. Helvetic Reserve will confirm availability, final price, compliance, and delivery before payment instructions are issued.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <button className="button lg" disabled style={{ opacity: 0.5, cursor: "not-allowed" }}>
-                    {watch.status === "reserved" ? "Currently reserved" : "No longer available"}
-                  </button>
-                  <p className="cta-disclaimer">
-                    This piece is no longer available. <Link href="/catalogue" style={{ color: "var(--accent)" }}>Browse the catalogue</Link> for other options.
-                  </p>
-                </>
-              )}
+              <Link href={`/request/${watch.id}`} className="button lg" style={{ textAlign: "center" }}>
+                Request availability
+              </Link>
+              <p className="cta-disclaimer">
+                No payment obligation. Helvetic Reserve will confirm availability, final price, compliance, and delivery before payment instructions are issued.
+              </p>
             </div>
 
             <div style={{ marginTop: "1.5rem" }}>

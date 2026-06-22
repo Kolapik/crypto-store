@@ -21,7 +21,6 @@ function numberOrUndefined(value: string) {
 
 export default function Catalogue() {
   const [brand, setBrand] = useState("");
-  const [status, setStatus] = useState("all");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
@@ -43,7 +42,6 @@ export default function Catalogue() {
 
   const { data: watches, isLoading } = trpc.watches.list.useQuery({
     brand: brand || undefined,
-    status,
     search: search || undefined,
     category: category || undefined,
     condition: condition || undefined,
@@ -66,7 +64,6 @@ export default function Catalogue() {
 
   const hasFilters = Boolean(
     brand ||
-      status !== "all" ||
       search ||
       category ||
       condition ||
@@ -88,7 +85,6 @@ export default function Catalogue() {
 
   const clearFilters = () => {
     setBrand("");
-    setStatus("all");
     setSearch("");
     setCategory("");
     setCondition("");
@@ -115,11 +111,11 @@ export default function Catalogue() {
           <label className="catalogue-sort">
             <span className="sr-only">Sort catalogue</span>
             <select value={sort} onChange={(event) => setSort(event.target.value)}>
-              <option value="featured">sort by relevance</option>
-              <option value="newest">sort by newest</option>
-              <option value="price_asc">price low to high</option>
-              <option value="price_desc">price high to low</option>
-              <option value="brand_az">brand A-Z</option>
+              <option value="featured">Relevance</option>
+              <option value="newest">Newest</option>
+              <option value="price_asc">Price low to high</option>
+              <option value="price_desc">Price high to low</option>
+              <option value="brand_az">Brand A-Z</option>
             </select>
           </label>
 
@@ -129,7 +125,7 @@ export default function Catalogue() {
             onClick={() => setShowFilters((current) => !current)}
             aria-expanded={showFilters}
           >
-            All filters
+            Filters
           </button>
         </div>
 
@@ -150,12 +146,6 @@ export default function Catalogue() {
             <select className="filter-select" value={category} onChange={(event) => setCategory(event.target.value)}>
               <option value="">All categories</option>
               {CATEGORIES.map((item) => <option key={item} value={item}>{item}</option>)}
-            </select>
-            <select className="filter-select" value={status} onChange={(event) => setStatus(event.target.value)}>
-              <option value="all">All statuses</option>
-              <option value="available">Available</option>
-              <option value="reserved">Available on request</option>
-              <option value="sold">Sold</option>
             </select>
             <select className="filter-select" value={condition} onChange={(event) => setCondition(event.target.value)}>
               <option value="">Any condition</option>
