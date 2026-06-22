@@ -21,7 +21,13 @@ function netlifyEnv(name: string) {
 }
 
 function env(name: string, fallback = "") {
-  return process.env[name] ?? netlifyEnv(name) ?? fallback;
+  const processValue = process.env[name];
+  if (processValue && processValue.length > 0) return processValue;
+
+  const netlifyValue = netlifyEnv(name);
+  if (netlifyValue && netlifyValue.length > 0) return netlifyValue;
+
+  return fallback;
 }
 
 function numberEnv(name: string, fallback: number) {
