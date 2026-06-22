@@ -1,16 +1,16 @@
 import { useState, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
-import ProductCard from "@/components/ProductCard";
+import ProductCard, { ProductCardSkeleton } from "@/components/ProductCard";
 import FilterWorkspace, { DraftFilters, EMPTY_FILTERS } from "@/components/FilterWorkspace";
 
 function numberOrUndefined(value: string) {
   if (!value.trim()) return undefined;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : undefined;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : undefined;
 }
 
 const SORT_OPTIONS = [
-  { value: "featured", label: "Featured first" },
+  { value: "featured", label: "Relevance" },
   { value: "newest", label: "New in" },
   { value: "price_asc", label: "Price (low–high)" },
   { value: "price_desc", label: "Price (high–low)" },
@@ -42,7 +42,7 @@ function filtersToQuery(f: DraftFilters) {
 function getActiveChips(f: DraftFilters): { key: string; label: string }[] {
   const chips: { key: string; label: string }[] = [];
   if (f.brand) chips.push({ key: "brand", label: f.brand });
-  if (f.status !== "all") chips.push({ key: "status", label: f.status === "available" ? "In stock" : f.status });
+  if (f.status !== "all") chips.push({ key: "status", label: "In stock" });
   if (f.category) chips.push({ key: "category", label: f.category });
   if (f.condition) chips.push({ key: "condition", label: f.condition });
   if (f.currency) chips.push({ key: "currency", label: f.currency });
@@ -61,9 +61,29 @@ function getActiveChips(f: DraftFilters): { key: string; label: string }[] {
   return chips;
 }
 
+/* ─── Sort chevron SVG ───────────────────────────────────────────────────── */
+function SortChevron() {
+  return (
+    <svg viewBox="0 0 12 11" width="10" height="10" fill="currentColor" aria-hidden="true">
+      <path fillRule="evenodd" clipRule="evenodd" d="M6.3657 11L11.8657 5.5L6.3657 0L5.75358 0.612112L10.2086 5.06717H0V5.93283L10.2086 5.93283L5.75358 10.3879L6.3657 11Z" />
+    </svg>
+  );
+}
+
+/* ─── X chip icon ────────────────────────────────────────────────────────── */
+function XIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
 export default function Catalogue() {
   const [sort, setSort] = useState("featured");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<DraftFilters>(EMPTY_FILTERS);
   const [draftFilters, setDraftFilters] = useState<DraftFilters>(EMPTY_FILTERS);
 
@@ -78,18 +98,14 @@ export default function Catalogue() {
     setFilterOpen(true);
   }, [appliedFilters]);
 
-  const closeFilter = useCallback(() => {
-    setFilterOpen(false);
-  }, []);
+  const closeFilter = useCallback(() => setFilterOpen(false), []);
 
   const applyFilter = useCallback(() => {
     setAppliedFilters({ ...draftFilters });
     setFilterOpen(false);
   }, [draftFilters]);
 
-  const resetFilter = useCallback(() => {
-    setDraftFilters({ ...EMPTY_FILTERS });
-  }, []);
+  const resetFilter = useCallback(() => setDraftFilters({ ...EMPTY_FILTERS }), []);
 
   const removeChip = useCallback((key: string) => {
     setAppliedFilters((prev) => {
@@ -123,130 +139,175 @@ export default function Catalogue() {
   const activeChips = getActiveChips(appliedFilters);
   const count = watches?.length ?? 0;
   const hasFilters = activeChips.length > 0 || sort !== "featured";
+  const sortLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? "Relevance";
 
   return (
     <>
       {/* Skip link */}
-      <a href="#catalogue-grid" className="skip-link">Skip to catalogue</a>
+      <a href="#catalogue-grid" className="buc-skip-link">Skip to catalogue</a>
 
       <main style={{ paddingTop: "var(--nav-h)" }}>
-        <div className="section page">
 
-          {/* Page header */}
-          <div className="cat-header">
-            <div>
-              <p className="section-eyebrow">Full inventory</p>
-              <h1 className="section-title">Catalogue</h1>
-            </div>
-          </div>
+        {/* ── Bucherer sticky toolbar — height:98px, position:fixed ── */}
+        <div className="buc-toolbar-sentinel" aria-hidden="true" />
+        <div className="buc-toolbar" role="toolbar" aria-label="Catalogue controls">
+          <div className="buc-toolbar__inner">
 
-          {/* Toolbar */}
-          <div className="cat-toolbar" role="toolbar" aria-label="Catalogue controls">
-            <div className="cat-toolbar-left">
+            {/* Left cluster: brand pill + All Filters */}
+            <div className="buc-toolbar__left">
+              {/* "Rolex Certified Pre-Owned" style pill — here: our store name */}
               <button
                 type="button"
-                className={`cat-filter-btn${filterOpen ? " cat-filter-btn-active" : ""}`}
+                className="buc-toolbar__brand-pill"
+                onClick={clearAll}
+                aria-label="Clear all filters"
+              >
+                Helvetic Reserve
+              </button>
+
+              {/* Brand quick-filter pills (from DB) */}
+              {(brands ?? []).slice(0, 4).map((b) => (
+                <button
+                  key={b}
+                  type="button"
+                  className={`buc-toolbar__brand-pill${appliedFilters.brand === b ? " buc-toolbar__brand-pill--active" : ""}`}
+                  onClick={() => {
+                    setAppliedFilters((prev) => ({
+                      ...prev,
+                      brand: prev.brand === b ? "" : b,
+                    }));
+                  }}
+                  aria-pressed={appliedFilters.brand === b}
+                >
+                  {b}
+                </button>
+              ))}
+
+              {/* All Filters button */}
+              <button
+                type="button"
+                className={`buc-toolbar__filters-btn${filterOpen ? " buc-toolbar__filters-btn--active" : ""}`}
                 onClick={openFilter}
                 aria-expanded={filterOpen}
                 aria-haspopup="dialog"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <line x1="4" y1="6" x2="20" y2="6" />
-                  <line x1="8" y1="12" x2="16" y2="12" />
-                  <line x1="11" y1="18" x2="13" y2="18" />
-                </svg>
-                <span>All Filters</span>
+                All Filters
                 {activeChips.length > 0 && (
-                  <span className="cat-filter-badge">{activeChips.length}</span>
+                  <span className="buc-toolbar__filters-badge">{activeChips.length}</span>
                 )}
               </button>
+            </div>
 
-              <span
-                className="cat-count"
+            {/* Right cluster: product count + Sort By */}
+            <div className="buc-toolbar__right">
+              {/* Product count — Bucherer: button style, not interactive */}
+              <button
+                type="button"
+                className="buc-toolbar__count"
                 aria-live="polite"
                 aria-atomic="true"
+                onClick={openFilter}
               >
-                {isLoading ? "Loading…" : `${count} piece${count !== 1 ? "s" : ""}`}
-              </span>
+                {isLoading ? "—" : `${count} Product${count !== 1 ? "s" : ""}`}
+              </button>
+
+              {/* Sort By dropdown — Bucherer: custom dropdown button */}
+              <div className="buc-toolbar__sort-wrap">
+                <button
+                  type="button"
+                  className={`buc-toolbar__sort-btn${sortOpen ? " buc-toolbar__sort-btn--open" : ""}`}
+                  onClick={() => setSortOpen((v) => !v)}
+                  aria-haspopup="listbox"
+                  aria-expanded={sortOpen}
+                >
+                  <span>Sort By {sortLabel}</span>
+                  <span className="buc-toolbar__sort-chevron"><SortChevron /></span>
+                </button>
+                {sortOpen && (
+                  <ul
+                    className="buc-toolbar__sort-menu"
+                    role="listbox"
+                    aria-label="Sort options"
+                    onMouseLeave={() => setSortOpen(false)}
+                  >
+                    {SORT_OPTIONS.map((o) => (
+                      <li
+                        key={o.value}
+                        role="option"
+                        aria-selected={sort === o.value}
+                        className={`buc-toolbar__sort-option${sort === o.value ? " buc-toolbar__sort-option--active" : ""}`}
+                        onClick={() => { setSort(o.value); setSortOpen(false); }}
+                      >
+                        {o.label}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
 
-            <div className="cat-toolbar-right">
-              <label htmlFor="cat-sort" className="cat-sort-label">Sort</label>
-              <select
-                id="cat-sort"
-                className="cat-sort-select"
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-              >
-                {SORT_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
-            </div>
           </div>
+        </div>
+
+        {/* ── Page content ── */}
+        <div className="buc-catalogue-page">
 
           {/* Active filter chips */}
           {activeChips.length > 0 && (
-            <div className="cat-chips" role="group" aria-label="Active filters">
+            <div className="buc-chips" role="group" aria-label="Active filters">
               {activeChips.map((chip) => (
                 <button
                   key={chip.key}
                   type="button"
-                  className="cat-chip"
+                  className="buc-chip"
                   onClick={() => removeChip(chip.key)}
                   aria-label={`Remove filter: ${chip.label}`}
                 >
                   {chip.label}
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
+                  <XIcon />
                 </button>
               ))}
               {hasFilters && (
-                <button type="button" className="cat-chip-clear" onClick={clearAll}>
+                <button type="button" className="buc-chip buc-chip--clear" onClick={clearAll}>
                   Clear all
                 </button>
               )}
             </div>
           )}
 
-          {/* Product grid */}
+          {/* Product grid — Bucherer: 8-col grid on desktop, 2-col on mobile */}
           {isLoading ? (
-            <div className="cat-grid catalogue-grid" id="catalogue-grid" aria-busy="true">
+            <div className="buc-grid" id="catalogue-grid" aria-busy="true">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="pc-skeleton" aria-hidden="true">
-                  <div className="pc-skeleton-media" />
-                  <div className="pc-skeleton-body">
-                    <div className="pc-skeleton-line pc-skeleton-line-short" />
-                    <div className="pc-skeleton-line" />
-                    <div className="pc-skeleton-line pc-skeleton-line-med" />
-                  </div>
+                <div key={i} className="buc-grid__item">
+                  <ProductCardSkeleton />
                 </div>
               ))}
             </div>
           ) : isError ? (
-            <div className="cat-state">
-              <p className="cat-state-title">Failed to load catalogue</p>
-              <p className="cat-state-sub">Please try refreshing the page.</p>
+            <div className="buc-state">
+              <p className="buc-state__title">Failed to load catalogue</p>
+              <p className="buc-state__sub">Please try refreshing the page.</p>
             </div>
           ) : watches && watches.length > 0 ? (
-            <div className="cat-grid catalogue-grid" id="catalogue-grid">
+            <div className="buc-grid" id="catalogue-grid">
               {watches.map((watch) => (
-                <ProductCard key={watch.id} {...watch} />
+                <div key={watch.id} className="buc-grid__item">
+                  <ProductCard {...watch} />
+                </div>
               ))}
             </div>
           ) : (
-            <div className="cat-state">
-              <div className="cat-state-icon" aria-hidden="true">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <div className="buc-state">
+              <div className="buc-state__icon" aria-hidden="true">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
                   <circle cx="12" cy="12" r="7" />
                   <path d="M12 5V3M12 21v-2M5 12H3M21 12h-2" />
                   <path d="M12 9v3l2 2" />
                 </svg>
               </div>
-              <p className="cat-state-title">No watches found</p>
-              <p className="cat-state-sub">Try adjusting your filters or clearing all.</p>
+              <p className="buc-state__title">No watches found</p>
+              <p className="buc-state__sub">Try adjusting your filters.</p>
               {hasFilters && (
                 <button type="button" className="button secondary sm" onClick={clearAll}>
                   Clear all filters
