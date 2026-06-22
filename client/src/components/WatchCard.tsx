@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "wouter";
 
 interface WatchCardProps {
@@ -33,14 +34,16 @@ function hashFromSlug(slug: string): string {
 }
 
 export default function WatchCard({ brand, model, title, reference, year, condition, category, hype, newArrival, price, currency, status, imageUrl, slug }: WatchCardProps) {
+  const [imageFailed, setImageFailed] = useState(false);
   const hash = hashFromSlug(slug);
   const condLabel = condition ? CONDITION_LABELS[condition] ?? condition : null;
+  const showImage = Boolean(imageUrl && !imageFailed);
 
   return (
     <Link href={`/watches/${slug}`} className="watch-card">
       <div className="watch-card-image">
-        {imageUrl ? (
-          <img src={imageUrl} alt={`${brand} ${model}`} loading="lazy" />
+        {showImage ? (
+          <img src={imageUrl ?? ""} alt={`${brand} ${model}`} loading="lazy" onError={() => setImageFailed(true)} />
         ) : (
           <div className="watch-card-placeholder">
             <div className="watch-card-placeholder-icon">
