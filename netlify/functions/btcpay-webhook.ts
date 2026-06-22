@@ -1,12 +1,30 @@
-import {
-  processBtcpayWebhookPayload,
-  verifyBtcpayWebhookSignature,
-} from "../../server/payments/btcpay";
+import { hydrateNetlifyEnv } from "./_shared/netlifyEnv";
+
+type PaymentModules = {
+  processBtcpayWebhookPayload: typeof import("../../server/payments/btcpay").processBtcpayWebhookPayload;
+  verifyBtcpayWebhookSignature: typeof import("../../server/payments/btcpay").verifyBtcpayWebhookSignature;
+};
+
+let paymentModulesPromise: Promise<PaymentModules> | null = null;
+
+function loadPaymentModules() {
+  hydrateNetlifyEnv();
+
+  paymentModulesPromise ??= import("../../server/payments/btcpay").then((module) => ({
+    processBtcpayWebhookPayload: module.processBtcpayWebhookPayload,
+    verifyBtcpayWebhookSignature: module.verifyBtcpayWebhookSignature,
+  }));
+
+  return paymentModulesPromise;
+}
 
 export default async (req: Request) => {
   if (req.method !== "POST") {
     return Response.json({ error: "Method not allowed." }, { status: 405 });
   }
+
+  const { processBtcpayWebhookPayload, verifyBtcpayWebhookSignature } =
+    await loadPaymentModules();
 
   const rawBody = Buffer.from(await req.arrayBuffer());
   const signature = req.headers.get("btcpay-sig") ?? undefined;

@@ -1,7 +1,29 @@
-import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { appRouter } from "../../server/routers";
-import { sdk } from "../../server/_core/sdk";
 import type { TrpcContext } from "../../server/_core/context";
+import { hydrateNetlifyEnv } from "./_shared/netlifyEnv";
+
+type ServerModules = {
+  fetchRequestHandler: typeof import("@trpc/server/adapters/fetch").fetchRequestHandler;
+  appRouter: typeof import("../../server/routers").appRouter;
+  sdk: typeof import("../../server/_core/sdk").sdk;
+};
+
+let serverModulesPromise: Promise<ServerModules> | null = null;
+
+function loadServerModules() {
+  hydrateNetlifyEnv();
+
+  serverModulesPromise ??= Promise.all([
+    import("@trpc/server/adapters/fetch"),
+    import("../../server/routers"),
+    import("../../server/_core/sdk"),
+  ]).then(([fetchAdapter, routerModule, sdkModule]) => ({
+    fetchRequestHandler: fetchAdapter.fetchRequestHandler,
+    appRouter: routerModule.appRouter,
+    sdk: sdkModule.sdk,
+  }));
+
+  return serverModulesPromise;
+}
 
 type CookieOptions = {
   domain?: string;
@@ -71,6 +93,8 @@ function createCookieResponse(resHeaders: Headers) {
 }
 
 export default async (req: Request) => {
+  const { fetchRequestHandler, appRouter, sdk } = await loadServerModules();
+
   return fetchRequestHandler({
     endpoint: "/api/trpc",
     req,
