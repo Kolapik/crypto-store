@@ -70,7 +70,7 @@ export default function AdminRequests() {
                       ) : <span className="mono">—</span>}
                     </td>
                     <td>
-                      <span className="mono">{request.cryptoPreference?.toUpperCase() ?? "—"}</span>
+                      <span className="mono">{request.cryptoCurrency?.toUpperCase() ?? request.cryptoPreference?.toUpperCase() ?? "—"}</span>
                     </td>
                     <td>
                       <span className={`pill ${request.status}`}>{request.status}</span>
@@ -103,6 +103,13 @@ export default function AdminRequests() {
                             {request.message}
                           </p>
                         )}
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "0.75rem", marginBottom: "0.9rem" }}>
+                          <p className="mono">Country: {request.customerCountry || "—"}</p>
+                          <p className="mono">Payment: {request.preferredPaymentMethod || "—"}</p>
+                          <p className="mono">Crypto: {request.cryptoCurrency?.toUpperCase() || "—"}</p>
+                          <p className="mono">Wallet: {request.walletAddress || "—"}</p>
+                          <p className="mono">Tx hash: {request.transactionHash || "—"}</p>
+                        </div>
                         <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-end" }}>
                           <div className="form-group" style={{ flex: 1 }}>
                             <label className="form-label">Admin notes</label>

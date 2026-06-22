@@ -89,24 +89,25 @@ export default function Home() {
       <section className="hero">
         <div className="hero-bg" aria-hidden="true">
           <img
-            src="/manus-storage/ocean-hero_8e855daf.jpg"
+            src="/images/hero/ocean-dark.jpg"
             alt="Deep dark ocean"
           />
         </div>
         <div className="hero-content">
-          <p className="hero-eyebrow">Private-source catalogue</p>
+          <p className="hero-eyebrow">Helvetic Reserve private catalogue</p>
           <h1>
             <span
               className="glitch-wrap"
-              data-text="Selected watches, quietly presented."
+              data-text="Helvetic Reserve"
             >
-              Selected watches,{" "}
-              <em>quietly presented.</em>
+              Helvetic{" "}
+              <em>Reserve.</em>
             </span>
           </h1>
           <p className="hero-lede">
-            Browse available pieces, request a watch, and let the owner confirm
-            availability before any invoice or payment details are discussed.
+            Browse selected pieces, request a watch, and receive manual
+            confirmation of availability, final price, compliance checks, and
+            payment instructions before any sale can proceed.
           </p>
           <div className="hero-actions">
             <Link href="/catalogue" className="button lg">

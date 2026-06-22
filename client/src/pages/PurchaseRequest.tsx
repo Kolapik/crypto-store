@@ -14,7 +14,11 @@ export default function PurchaseRequest() {
     customerName: "",
     customerEmail: "",
     customerPhone: "",
-    cryptoPreference: "none" as "btc" | "eth" | "usdt" | "none" | "other",
+    customerCountry: "",
+    preferredPaymentMethod: "crypto" as "crypto" | "bank_transfer" | "other",
+    cryptoCurrency: "none" as "btc" | "eth" | "usdt" | "usdc" | "none" | "other",
+    walletAddress: "",
+    transactionHash: "",
     message: "",
   });
   const [error, setError] = useState("");
@@ -47,7 +51,7 @@ export default function PurchaseRequest() {
             </p>
           )}
           <p className="section-lede" style={{ marginTop: "0.75rem" }}>
-            Submit your details below. The owner will confirm availability and reach out directly. No invoice or payment is required at this stage.
+            Submit your details below. Helvetic Reserve will confirm availability and reach out directly. No invoice or payment is required at this stage.
           </p>
         </div>
 
@@ -89,18 +93,67 @@ export default function PurchaseRequest() {
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Crypto payment preference</label>
+              <label className="form-label">Country</label>
+              <input
+                className="form-input"
+                type="text"
+                placeholder="Switzerland"
+                value={form.customerCountry}
+                onChange={e => setForm(f => ({ ...f, customerCountry: e.target.value }))}
+              />
+            </div>
+          </div>
+
+          <div className="form-grid">
+            <div className="form-group">
+              <label className="form-label">Preferred payment method</label>
               <select
                 className="form-select"
-                value={form.cryptoPreference}
-                onChange={e => setForm(f => ({ ...f, cryptoPreference: e.target.value as any }))}
+                value={form.preferredPaymentMethod}
+                onChange={e => setForm(f => ({ ...f, preferredPaymentMethod: e.target.value as any }))}
               >
-                <option value="none">No preference / Fiat</option>
+                <option value="crypto">Crypto, confirmed manually</option>
+                <option value="bank_transfer">Bank transfer, by exception</option>
+                <option value="other">Discuss options</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Crypto currency</label>
+              <select
+                className="form-select"
+                value={form.cryptoCurrency}
+                onChange={e => setForm(f => ({ ...f, cryptoCurrency: e.target.value as any }))}
+              >
+                <option value="none">Not decided</option>
                 <option value="btc">Bitcoin (BTC)</option>
                 <option value="eth">Ethereum (ETH)</option>
                 <option value="usdt">Tether (USDT)</option>
+                <option value="usdc">USD Coin (USDC)</option>
                 <option value="other">Other crypto</option>
               </select>
+            </div>
+          </div>
+
+          <div className="form-grid">
+            <div className="form-group">
+              <label className="form-label">Wallet address (optional)</label>
+              <input
+                className="form-input"
+                type="text"
+                placeholder="Only if already relevant"
+                value={form.walletAddress}
+                onChange={e => setForm(f => ({ ...f, walletAddress: e.target.value }))}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Transaction hash (optional)</label>
+              <input
+                className="form-input"
+                type="text"
+                placeholder="Leave empty before payment"
+                value={form.transactionHash}
+                onChange={e => setForm(f => ({ ...f, transactionHash: e.target.value }))}
+              />
             </div>
           </div>
 
@@ -132,7 +185,9 @@ export default function PurchaseRequest() {
           </div>
 
           <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
-            By submitting this form you agree to be contacted by the owner regarding this watch. No payment or commitment is made at this stage.
+            By submitting this form you agree to be contacted at {""}
+            <a href="mailto:contact@helvetic-reserve.com" style={{ color: "var(--accent)" }}>contact@helvetic-reserve.com</a>{" "}
+            or by the details provided. No payment instruction is valid until Helvetic Reserve manually confirms availability, price, compliance, and delivery.
           </p>
         </form>
       </div>

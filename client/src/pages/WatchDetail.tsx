@@ -59,8 +59,11 @@ export default function WatchDetail() {
 
           {/* ── Info panel ── */}
           <div className="watch-detail-info">
-            <p className="watch-detail-brand">{watch.brand}</p>
-            <h1 className="watch-detail-title">{watch.model}</h1>
+            <p className="watch-detail-brand">{watch.category ?? watch.brand}</p>
+            <h1 className="watch-detail-title">{watch.title || watch.model}</h1>
+            {watch.title && watch.title !== watch.model && (
+              <p className="watch-detail-ref">{watch.brand} {watch.model}</p>
+            )}
             {watch.reference && (
               <p className="watch-detail-ref">Ref. {watch.reference}</p>
             )}
@@ -95,6 +98,42 @@ export default function WatchDetail() {
                   <p className="spec-value">{watch.currency}</p>
                 </div>
               )}
+              {watch.boxPapers && (
+                <div className="spec-item">
+                  <p className="spec-label">Box / papers</p>
+                  <p className="spec-value">{watch.boxPapers}</p>
+                </div>
+              )}
+              {watch.movement && (
+                <div className="spec-item">
+                  <p className="spec-label">Movement</p>
+                  <p className="spec-value">{watch.movement}</p>
+                </div>
+              )}
+              {watch.caseSize && (
+                <div className="spec-item">
+                  <p className="spec-label">Case size</p>
+                  <p className="spec-value">{watch.caseSize}</p>
+                </div>
+              )}
+              {watch.material && (
+                <div className="spec-item">
+                  <p className="spec-label">Material</p>
+                  <p className="spec-value">{watch.material}</p>
+                </div>
+              )}
+              {watch.dialColor && (
+                <div className="spec-item">
+                  <p className="spec-label">Dial</p>
+                  <p className="spec-value">{watch.dialColor}</p>
+                </div>
+              )}
+              {watch.braceletMaterial && (
+                <div className="spec-item">
+                  <p className="spec-label">Bracelet</p>
+                  <p className="spec-value">{watch.braceletMaterial}</p>
+                </div>
+              )}
               {watch.reference && (
                 <div className="spec-item">
                   <p className="spec-label">Reference</p>
@@ -115,7 +154,7 @@ export default function WatchDetail() {
                     Request this watch
                   </Link>
                   <p className="cta-disclaimer">
-                    No payment obligation. The owner will confirm availability and contact you directly to discuss next steps.
+                    No payment obligation. Helvetic Reserve will confirm availability, final price, compliance, and delivery before payment instructions are issued.
                   </p>
                 </>
               ) : (

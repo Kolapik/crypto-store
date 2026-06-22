@@ -13,6 +13,8 @@ const NAV_GROUPS = [
     links: [
       { href: "/admin/dashboard", label: "Dashboard", icon: "⬡" },
       { href: "/admin/watches", label: "Catalogue", icon: "◎" },
+      { href: "/admin/import", label: "Import", icon: "◇" },
+      { href: "/admin/suppliers", label: "Fournisseurs", icon: "◫" },
       { href: "/admin/requests", label: "Requests", icon: "◈" },
     ],
   },
@@ -46,7 +48,7 @@ function SidebarContent({
   return (
     <>
       <div className="admin-brand">
-        <p className="wordmark">Vault<span>.</span>Watch</p>
+        <p className="wordmark">Helvetic Reserve</p>
         <p className="admin-brand-tag">Control panel</p>
       </div>
 
@@ -125,7 +127,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <span /><span /><span />
         </button>
         <span className="admin-topbar-title">
-          Vault<span>.</span>Watch
+          Helvetic Reserve
         </span>
         <span className="admin-topbar-page">{currentLabel}</span>
       </div>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://helvetic-reserve.com/sitemap.xml

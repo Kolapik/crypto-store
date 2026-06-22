@@ -1,19 +1,33 @@
 {
   "version": "7",
-  "dialect": "mysql",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1782052293182,
-      "tag": "0000_loud_lionheart",
+      "version": "7",
+      "when": 1766275200000,
+      "tag": "0000_helvetic_reserve_postgres",
       "breakpoints": true
     },
     {
       "idx": 1,
-      "version": "5",
-      "when": 1782052423657,
-      "tag": "0001_bright_smasher",
+      "version": "7",
+      "when": 1782084600000,
+      "tag": "0001_importer_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782115200000,
+      "tag": "0002_supplier_sync",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1782118800000,
+      "tag": "0003_image_enhancements",
       "breakpoints": true
     }
   ]

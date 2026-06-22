@@ -1,4 +1,4 @@
-# Vault Watch — TODO
+# Helvetic Reserve — TODO
 
 ## Phase 1: Foundation
 - [x] Database schema (watches, purchase_requests tables)

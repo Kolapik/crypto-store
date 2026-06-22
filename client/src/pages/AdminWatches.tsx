@@ -8,6 +8,7 @@ export default function AdminWatches() {
   const utils = trpc.useUtils();
   const { data: watches, isLoading } = trpc.admin.watches.list.useQuery();
   const [archiving, setArchiving] = useState<number | null>(null);
+  const [duplicating, setDuplicating] = useState<number | null>(null);
 
   const archiveMutation = trpc.admin.watches.archive.useMutation({
     onSuccess: () => {
@@ -19,9 +20,24 @@ export default function AdminWatches() {
     onError: (e) => { toast.error(e.message); setArchiving(null); },
   });
 
+  const duplicateMutation = trpc.admin.watches.duplicate.useMutation({
+    onSuccess: () => {
+      utils.admin.watches.list.invalidate();
+      utils.admin.metrics.invalidate();
+      toast.success("Watch duplicated as hidden draft");
+      setDuplicating(null);
+    },
+    onError: (e) => { toast.error(e.message); setDuplicating(null); },
+  });
+
   const handleArchive = (id: number) => {
     setArchiving(id);
     archiveMutation.mutate({ id });
+  };
+
+  const handleDuplicate = (id: number) => {
+    setDuplicating(id);
+    duplicateMutation.mutate({ id });
   };
 
   return (
@@ -31,7 +47,10 @@ export default function AdminWatches() {
           <h1 className="admin-page-title">Catalogue</h1>
           <p className="admin-page-subtitle">{watches?.length ?? 0} watches total</p>
         </div>
-        <Link href="/admin/watches/new" className="button sm">+ Add watch</Link>
+        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+          <Link href="/admin/import" className="button secondary sm">Import URL</Link>
+          <Link href="/admin/watches/new" className="button sm">+ Add watch</Link>
+        </div>
       </div>
 
       <div className="admin-table-wrap">
@@ -49,6 +68,8 @@ export default function AdminWatches() {
                 <th>Year</th>
                 <th>Price</th>
                 <th>Status</th>
+                <th>Publication</th>
+                <th>Visibility</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -69,8 +90,21 @@ export default function AdminWatches() {
                     <span className={`pill ${watch.status}`}>{watch.status}</span>
                   </td>
                   <td>
+                    <span className={`pill ${watch.publicationStatus}`}>{watch.publicationStatus}</span>
+                  </td>
+                  <td>
+                    <span className="mono">{watch.visibility}{watch.featured ? " / featured" : ""}</span>
+                  </td>
+                  <td>
                     <div style={{ display: "flex", gap: "0.5rem" }}>
                       <Link href={`/admin/watches/${watch.id}/edit`} className="button ghost sm">Edit</Link>
+                      <button
+                        className="button secondary sm"
+                        onClick={() => handleDuplicate(watch.id)}
+                        disabled={duplicating === watch.id}
+                      >
+                        {duplicating === watch.id ? "…" : "Duplicate"}
+                      </button>
                       {watch.status !== "hidden" && (
                         <button
                           className="button danger sm"

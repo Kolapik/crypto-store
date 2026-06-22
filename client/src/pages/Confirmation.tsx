@@ -13,7 +13,7 @@ export default function Confirmation() {
             We'll be in touch
           </h1>
           <p style={{ color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: "2rem", fontSize: "0.95rem" }}>
-            Your request has been received. The owner will review availability and contact you directly. No payment or commitment has been made.
+            Your request has been received. Helvetic Reserve will review availability and contact you directly. No payment or commitment has been made.
           </p>
           <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
             <Link href="/catalogue" className="button">

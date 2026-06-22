@@ -24,13 +24,18 @@ export default function ScrollNav() {
       <nav className={`nav${scrolled ? " scrolled" : ""}${open ? " menu-open" : ""}`}>
         <div className="nav-inner">
           <Link href="/" className="nav-logo">
-            Vault<span>.</span>Watch
+            <img
+              src="/images/vault-watch-sail-symbol.svg"
+              alt=""
+              className="nav-logo-mark"
+              aria-hidden="true"
+            />
+            Helvetic Reserve
           </Link>
 
           {/* Desktop links */}
           <ul className="nav-links nav-links--desktop">
             <li><Link href="/catalogue">Catalogue</Link></li>
-            <li><Link href="/admin/login" className="nav-cta">Log in</Link></li>
           </ul>
 
           {/* Mobile hamburger */}
@@ -48,10 +53,17 @@ export default function ScrollNav() {
       {open && (
         <div className="nav-drawer" onClick={() => setOpen(false)}>
           <div className="nav-drawer-inner" onClick={e => e.stopPropagation()}>
-            <Link href="/" className="nav-drawer-logo">Vault<span>.</span>Watch</Link>
+            <Link href="/" className="nav-drawer-logo">
+              <img
+                src="/images/vault-watch-sail-symbol.svg"
+                alt=""
+                className="nav-logo-mark"
+                aria-hidden="true"
+              />
+              Helvetic Reserve
+            </Link>
             <ul className="nav-drawer-links">
               <li><Link href="/catalogue" onClick={() => setOpen(false)}>Catalogue</Link></li>
-              <li><Link href="/admin/login" className="nav-cta" onClick={() => setOpen(false)}>Log in</Link></li>
             </ul>
           </div>
         </div>

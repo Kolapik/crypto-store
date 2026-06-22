@@ -1,0 +1,5 @@
+http://localhost/product
+http://127.0.0.1/product
+http://169.254.169.254/latest/meta-data
+https://evil.example/product/daytona
+https://allowed.example/admin/private

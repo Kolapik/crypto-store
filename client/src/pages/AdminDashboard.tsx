@@ -77,7 +77,7 @@ export default function AdminDashboard() {
                     )}
                   </td>
                   <td>
-                    <span className="mono">{request.cryptoPreference?.toUpperCase() ?? "—"}</span>
+                    <span className="mono">{request.cryptoCurrency?.toUpperCase() ?? request.cryptoPreference?.toUpperCase() ?? "—"}</span>
                   </td>
                   <td>
                     <span className={`pill ${STATUS_COLORS[request.status] ?? ""}`}>

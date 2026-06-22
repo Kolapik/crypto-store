@@ -5,6 +5,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ScrollNav from "./components/ScrollNav";
+import SiteFooter from "./components/SiteFooter";
 import AdminGuard from "./components/AdminGuard";
 
 // Public pages
@@ -13,14 +14,19 @@ import Catalogue from "./pages/Catalogue";
 import WatchDetail from "./pages/WatchDetail";
 import PurchaseRequest from "./pages/PurchaseRequest";
 import Confirmation from "./pages/Confirmation";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 // Admin pages
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminWatches from "./pages/AdminWatches";
 import AdminWatchForm from "./pages/AdminWatchForm";
+import AdminImport from "./pages/AdminImport";
 import AdminRequests from "./pages/AdminRequests";
 import AdminPlaceholder from "./pages/AdminPlaceholder";
+import AdminHealth from "./pages/AdminHealth";
+import AdminSuppliers from "./pages/AdminSuppliers";
 
 function Router() {
   return (
@@ -31,6 +37,8 @@ function Router() {
       <Route path="/watches/:slug" component={WatchDetail} />
       <Route path="/request/:watchId" component={PurchaseRequest} />
       <Route path="/request/confirmation" component={Confirmation} />
+      <Route path="/terms" component={TermsOfService} />
+      <Route path="/privacy" component={PrivacyPolicy} />
 
       {/* Admin auth */}
       <Route path="/admin/login" component={AdminLogin} />
@@ -44,6 +52,12 @@ function Router() {
       </Route>
       <Route path="/admin/watches">
         {() => <AdminGuard><AdminWatches /></AdminGuard>}
+      </Route>
+      <Route path="/admin/import">
+        {() => <AdminGuard><AdminImport /></AdminGuard>}
+      </Route>
+      <Route path="/admin/suppliers">
+        {() => <AdminGuard><AdminSuppliers /></AdminGuard>}
       </Route>
       <Route path="/admin/watches/new">
         {() => <AdminGuard><AdminWatchForm /></AdminGuard>}
@@ -61,7 +75,7 @@ function Router() {
         {() => <AdminGuard><AdminPlaceholder title="Audit log" subtitle="Track all admin actions and changes" /></AdminGuard>}
       </Route>
       <Route path="/admin/health">
-        {() => <AdminGuard><AdminPlaceholder title="System health" subtitle="Database and service status" /></AdminGuard>}
+        {() => <AdminGuard><AdminHealth /></AdminGuard>}
       </Route>
 
       <Route path="/404" component={NotFound} />
@@ -78,6 +92,7 @@ function App() {
           <Toaster />
           <ScrollNav />
           <Router />
+          <SiteFooter />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
