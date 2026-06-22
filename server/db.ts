@@ -141,6 +141,14 @@ function databaseUrl() {
   return ENV.databaseUrl || LOCAL_DATABASE_URL;
 }
 
+function databaseSslConfig() {
+  const url = databaseUrl();
+  if (url.includes("sslmode=require") || url.includes(".neon.tech")) {
+    return { rejectUnauthorized: false };
+  }
+  return undefined;
+}
+
 function warnDbUnavailable(error: unknown) {
   if (warnedUnavailable) return;
   warnedUnavailable = true;
@@ -158,6 +166,7 @@ export async function getDb() {
       max: 5,
       idleTimeoutMillis: 10_000,
       connectionTimeoutMillis: 10_000,
+      ssl: databaseSslConfig(),
     });
     await pool.query("select 1");
     db = drizzle(pool);
